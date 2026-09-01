@@ -48,6 +48,7 @@ export const eases = {
   ui: "cubic-bezier(0.22, 1, 0.36, 1)",
   subtle: "cubic-bezier(0.4, 0, 0.2, 1)",
   hero: "cubic-bezier(0.16, 1, 0.3, 1)",
+  spring: { type: "spring", stiffness: 260, damping: 26 },
 } as const;
 
 export type EaseToken = keyof typeof eases;

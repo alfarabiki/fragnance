@@ -1,8 +1,8 @@
 ﻿/*
- * ATLASE Design Tokens â€” single shared CSS entry (@atlase/ui).
- * Source of truth: docs/design-system.md Â§1. Consumed by apps via Tailwind v4 @theme.
+ * ATLASE Design Tokens — single shared CSS entry (@atlase/ui).
+ * Source of truth: docs/design-system.md §1. Consumed by apps via Tailwind v4 @theme.
  *
- * EMERALD USAGE GUARDRAIL: Emerald is accent-only. Apply to â‰¤15% of any viewport â€”
+ * EMERALD USAGE GUARDRAIL: Emerald is accent-only. Apply to ≤15% of any viewport —
  * primary CTA, active nav/pill, link hover, small icons, success feedback.
  * Never a page background, large block, or border at scale. Black + Ivory dominates.
  */
@@ -12,37 +12,46 @@
 :root,
 :host {
   @theme {
-    /* ---- Core palette ---- */
-    --color-black: #0A0A0A;
-    --color-deep-green: #0D6B4D;
-    --color-emerald: #19A974;
-    --color-ivory: #F5F2EA;
-    --color-muted-gray: #9A9A93;
-
-    /* ---- Extended neutral ramps + status ---- */
-    --color-black-900: #0A0A0A;
-    --color-black-600: #2A2A28;
-    --color-black-400: #4A4A47;
-    --color-ivory-50: #FBF9F4;
-    --color-ivory-200: #EDE8DC;
-    --color-emerald-50: #E9F7F2;
-    --color-emerald-700: #0E7A55;
-    --color-gray-500: #9A9A93;
-    --color-success: #1E8E5A;
-    --color-error: #C0392B;
-    --color-warning: #B7791F;
-
-    /* ---- Semantic aliases ---- */
-    --color-background: var(--color-black);
-    --color-surface: var(--color-ivory);
-    --color-surface-raised: var(--color-ivory-50);
-    --color-surface-dark: var(--color-black-600);
-    --color-text-primary: var(--color-black);
-    --color-text-secondary: var(--color-muted-gray);
-    --color-accent: var(--color-emerald);
-    --color-border: var(--color-ivory-200);
-
-    /* ---- Spacing (4px base) ---- */
+    --atlase-black: #0A0A0A;
+    --atlase-deep-green: #0D6B4D;
+    --atlase-emerald: #19A974;
+    --atlase-ivory: #F5F2EA;
+    --atlase-muted-gray: #9A9A93;
+    --atlase-black-900: #0A0A0A;
+    --atlase-black-600: #2A2A28;
+    --atlase-black-400: #4A4A47;
+    --atlase-ivory-50: #FBF9F4;
+    --atlase-ivory-200: #EDE8DC;
+    --atlase-emerald-50: #E9F7F2;
+    --atlase-emerald-700: #0E7A55;
+    --atlase-gray-500: #9A9A93;
+    --atlase-success: #1E8E5A;
+    --atlase-error: #C0392B;
+    --atlase-warning: #B7791F;
+    --color-black: var(--atlase-black);
+    --color-deep-green: var(--atlase-deep-green);
+    --color-emerald: var(--atlase-emerald);
+    --color-ivory: var(--atlase-ivory);
+    --color-muted-gray: var(--atlase-muted-gray);
+    --color-black-900: var(--atlase-black-900);
+    --color-black-600: var(--atlase-black-600);
+    --color-black-400: var(--atlase-black-400);
+    --color-ivory-50: var(--atlase-ivory-50);
+    --color-ivory-200: var(--atlase-ivory-200);
+    --color-emerald-50: var(--atlase-emerald-50);
+    --color-emerald-700: var(--atlase-emerald-700);
+    --color-gray-500: var(--atlase-gray-500);
+    --color-success: var(--atlase-success);
+    --color-error: var(--atlase-error);
+    --color-warning: var(--atlase-warning);
+    --color-background: var(--atlase-black);
+    --color-surface: var(--atlase-ivory);
+    --color-surface-raised: var(--atlase-ivory-50);
+    --color-surface-dark: var(--atlase-black-600);
+    --color-text-primary: var(--atlase-black);
+    --color-text-secondary: var(--atlase-muted-gray);
+    --color-accent: var(--atlase-emerald);
+    --color-border: var(--atlase-ivory-200);
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -54,12 +63,8 @@
     --space-16: 64px;
     --space-24: 96px;
     --space-32: 128px;
-
-    /* ---- Typography: fonts ---- */
     --font-display: "Fraunces", Georgia, "Times New Roman", serif;
     --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-
-    /* Base (mobile) sizes â€” breakpoint scale-up via utilities below */
     --text-display-1: 32px;
     --text-display-1--line-height: 1;
     --text-display-1--font-weight: 600;
@@ -99,23 +104,17 @@
     --text-label: 13px;
     --text-label--line-height: 1.3;
     --text-label--font-weight: 500;
-
-    /* ---- Radius ---- */
     --radius-none: 0;
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 16px;
     --radius-xl: 24px;
     --radius-full: 9999px;
-
-    /* ---- Shadows ---- */
     --shadow-sm: 0 1px 2px rgba(10, 10, 10, 0.06);
     --shadow-md: 0 4px 12px -2px rgba(10, 10, 10, 0.1);
     --shadow-lg: 0 12px 32px -8px rgba(10, 10, 10, 0.16);
     --shadow-xl: 0 24px 64px -16px rgba(10, 10, 10, 0.24);
     --shadow-emerald-glow: 0 0 0 1px rgba(25, 169, 116, 0.35), 0 8px 24px -6px rgba(25, 169, 116, 0.35);
-
-    /* ---- Motion ---- */
     --duration-fast: 150ms;
     --duration-base: 300ms;
     --duration-slow: 500ms;
@@ -123,15 +122,11 @@
     --ease-ui: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-subtle: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-hero: cubic-bezier(0.16, 1, 0.3, 1);
-
-    /* ---- Breakpoints ---- */
     --breakpoint-sm: 640px;
     --breakpoint-md: 768px;
     --breakpoint-lg: 1024px;
     --breakpoint-xl: 1280px;
     --breakpoint-2xl: 1536px;
-
-    /* ---- Z-index ---- */
     --z-base: 0;
     --z-sticky: 100;
     --z-fab: 150;
@@ -140,16 +135,14 @@
     --z-sheet: 400;
     --z-modal: 500;
     --z-toast: 600;
-
-    /* ---- Containers ---- */
     --container-sm: 480px;
     --container-md: 720px;
     --container-lg: 1080px;
     --container-xl: 1280px;
+    --container-full: 100%;
   }
 }
 
-/* ---- Container utility ---- */
 .atlase-container {
   margin-inline: auto;
   width: 100%;
@@ -162,7 +155,6 @@
   }
 }
 
-/* ---- Typography utilities (display via Fraunces, responsive scale-up) ---- */
 .atlase-text-display-1 {
   font-family: var(--font-display);
   font-size: var(--text-display-1);
@@ -188,7 +180,7 @@
   color: var(--color-text-primary);
 }
 .atlase-text-heading-1 {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: var(--text-heading-1);
   line-height: var(--text-heading-1--line-height);
   font-weight: var(--text-heading-1--font-weight);
@@ -260,7 +252,6 @@
   color: var(--color-text-primary);
 }
 
-/* ---- Responsive typography scale-up ---- */
 @media (min-width: var(--breakpoint-md)) {
   .atlase-text-display-1 { font-size: 48px; }
   .atlase-text-display-2 { font-size: 40px; }
@@ -278,7 +269,6 @@
   .atlase-text-price { font-size: 20px; }
 }
 
-/* ---- Focus ring (accent) + reduced motion ---- */
 .focus-ring {
   outline: 2px solid var(--color-emerald);
   outline-offset: 2px;
