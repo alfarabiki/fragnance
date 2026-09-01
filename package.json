@@ -1,0 +1,21 @@
+{
+  "name": "atlase",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "db:dev": "supabase start",
+    "db:migrate": "cd database && supabase db push",
+    "db:types": "cd database && supabase gen types typescript --local > ../packages/types/src/generated/database.ts"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
