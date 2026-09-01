@@ -1,0 +1,298 @@
+﻿/*
+ * ATLASE Design Tokens â€” single shared CSS entry (@atlase/ui).
+ * Source of truth: docs/design-system.md Â§1. Consumed by apps via Tailwind v4 @theme.
+ *
+ * EMERALD USAGE GUARDRAIL: Emerald is accent-only. Apply to â‰¤15% of any viewport â€”
+ * primary CTA, active nav/pill, link hover, small icons, success feedback.
+ * Never a page background, large block, or border at scale. Black + Ivory dominates.
+ */
+
+@import "tailwindcss";
+
+:root,
+:host {
+  @theme {
+    /* ---- Core palette ---- */
+    --color-black: #0A0A0A;
+    --color-deep-green: #0D6B4D;
+    --color-emerald: #19A974;
+    --color-ivory: #F5F2EA;
+    --color-muted-gray: #9A9A93;
+
+    /* ---- Extended neutral ramps + status ---- */
+    --color-black-900: #0A0A0A;
+    --color-black-600: #2A2A28;
+    --color-black-400: #4A4A47;
+    --color-ivory-50: #FBF9F4;
+    --color-ivory-200: #EDE8DC;
+    --color-emerald-50: #E9F7F2;
+    --color-emerald-700: #0E7A55;
+    --color-gray-500: #9A9A93;
+    --color-success: #1E8E5A;
+    --color-error: #C0392B;
+    --color-warning: #B7791F;
+
+    /* ---- Semantic aliases ---- */
+    --color-background: var(--color-black);
+    --color-surface: var(--color-ivory);
+    --color-surface-raised: var(--color-ivory-50);
+    --color-surface-dark: var(--color-black-600);
+    --color-text-primary: var(--color-black);
+    --color-text-secondary: var(--color-muted-gray);
+    --color-accent: var(--color-emerald);
+    --color-border: var(--color-ivory-200);
+
+    /* ---- Spacing (4px base) ---- */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-16: 64px;
+    --space-24: 96px;
+    --space-32: 128px;
+
+    /* ---- Typography: fonts ---- */
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+    /* Base (mobile) sizes â€” breakpoint scale-up via utilities below */
+    --text-display-1: 32px;
+    --text-display-1--line-height: 1;
+    --text-display-1--font-weight: 600;
+    --text-display-2: 28px;
+    --text-display-2--line-height: 1.05;
+    --text-display-2--font-weight: 600;
+    --text-display-3: 22px;
+    --text-display-3--line-height: 1.1;
+    --text-display-3--font-weight: 600;
+    --text-heading-1: 20px;
+    --text-heading-1--line-height: 1.2;
+    --text-heading-1--font-weight: 500;
+    --text-heading-2: 17px;
+    --text-heading-2--line-height: 1.3;
+    --text-heading-2--font-weight: 500;
+    --text-subheading: 16px;
+    --text-subheading--line-height: 1.4;
+    --text-subheading--font-weight: 500;
+    --text-body-lg: 18px;
+    --text-body-lg--line-height: 1.6;
+    --text-body-lg--font-weight: 400;
+    --text-body: 16px;
+    --text-body--line-height: 1.6;
+    --text-body--font-weight: 400;
+    --text-body-sm: 14px;
+    --text-body-sm--line-height: 1.5;
+    --text-body-sm--font-weight: 400;
+    --text-caption: 12px;
+    --text-caption--line-height: 1.4;
+    --text-caption--font-weight: 400;
+    --text-price: 16px;
+    --text-price--line-height: 1.2;
+    --text-price--font-weight: 600;
+    --text-button: 16px;
+    --text-button--line-height: 1;
+    --text-button--font-weight: 600;
+    --text-label: 13px;
+    --text-label--line-height: 1.3;
+    --text-label--font-weight: 500;
+
+    /* ---- Radius ---- */
+    --radius-none: 0;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+    /* ---- Shadows ---- */
+    --shadow-sm: 0 1px 2px rgba(10, 10, 10, 0.06);
+    --shadow-md: 0 4px 12px -2px rgba(10, 10, 10, 0.1);
+    --shadow-lg: 0 12px 32px -8px rgba(10, 10, 10, 0.16);
+    --shadow-xl: 0 24px 64px -16px rgba(10, 10, 10, 0.24);
+    --shadow-emerald-glow: 0 0 0 1px rgba(25, 169, 116, 0.35), 0 8px 24px -6px rgba(25, 169, 116, 0.35);
+
+    /* ---- Motion ---- */
+    --duration-fast: 150ms;
+    --duration-base: 300ms;
+    --duration-slow: 500ms;
+    --duration-hero: 1200ms;
+    --ease-ui: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-subtle: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-hero: cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* ---- Breakpoints ---- */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* ---- Z-index ---- */
+    --z-base: 0;
+    --z-sticky: 100;
+    --z-fab: 150;
+    --z-overlay: 200;
+    --z-dropdown: 300;
+    --z-sheet: 400;
+    --z-modal: 500;
+    --z-toast: 600;
+
+    /* ---- Containers ---- */
+    --container-sm: 480px;
+    --container-md: 720px;
+    --container-lg: 1080px;
+    --container-xl: 1280px;
+  }
+}
+
+/* ---- Container utility ---- */
+.atlase-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-xl);
+  padding-inline: var(--space-4);
+}
+@media (min-width: var(--breakpoint-sm)) {
+  .atlase-container {
+    padding-inline: var(--space-6);
+  }
+}
+
+/* ---- Typography utilities (display via Fraunces, responsive scale-up) ---- */
+.atlase-text-display-1 {
+  font-family: var(--font-display);
+  font-size: var(--text-display-1);
+  line-height: var(--text-display-1--line-height);
+  font-weight: var(--text-display-1--font-weight);
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+.atlase-text-display-2 {
+  font-family: var(--font-display);
+  font-size: var(--text-display-2);
+  line-height: var(--text-display-2--line-height);
+  font-weight: var(--text-display-2--font-weight);
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+.atlase-text-display-3 {
+  font-family: var(--font-display);
+  font-size: var(--text-display-3);
+  line-height: var(--text-display-3--line-height);
+  font-weight: var(--text-display-3--font-weight);
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+.atlase-text-heading-1 {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-1);
+  line-height: var(--text-heading-1--line-height);
+  font-weight: var(--text-heading-1--font-weight);
+  color: var(--color-text-primary);
+}
+.atlase-text-heading-2 {
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-2);
+  line-height: var(--text-heading-2--line-height);
+  font-weight: var(--text-heading-2--font-weight);
+  color: var(--color-text-primary);
+}
+.atlase-text-subheading {
+  font-family: var(--font-sans);
+  font-size: var(--text-subheading);
+  line-height: var(--text-subheading--line-height);
+  font-weight: var(--text-subheading--font-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
+}
+.atlase-text-body-lg {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-lg);
+  line-height: var(--text-body-lg--line-height);
+  font-weight: var(--text-body-lg--font-weight);
+  color: var(--color-text-primary);
+}
+.atlase-text-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  font-weight: var(--text-body--font-weight);
+  color: var(--color-text-primary);
+}
+.atlase-text-body-sm {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  line-height: var(--text-body-sm--line-height);
+  font-weight: var(--text-body-sm--font-weight);
+  color: var(--color-text-secondary);
+}
+.atlase-text-caption {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+  font-weight: var(--text-caption--font-weight);
+  color: var(--color-text-secondary);
+}
+.atlase-text-price {
+  font-family: var(--font-sans);
+  font-size: var(--text-price);
+  line-height: var(--text-price--line-height);
+  font-weight: var(--text-price--font-weight);
+  color: var(--color-text-primary);
+}
+.atlase-text-button {
+  font-family: var(--font-sans);
+  font-size: var(--text-button);
+  line-height: var(--text-button--line-height);
+  font-weight: var(--text-button--font-weight);
+  color: var(--color-text-primary);
+}
+.atlase-text-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  font-weight: var(--text-label--font-weight);
+  color: var(--color-text-primary);
+}
+
+/* ---- Responsive typography scale-up ---- */
+@media (min-width: var(--breakpoint-md)) {
+  .atlase-text-display-1 { font-size: 48px; }
+  .atlase-text-display-2 { font-size: 40px; }
+  .atlase-text-display-3 { font-size: 28px; }
+  .atlase-text-heading-1 { font-size: 24px; }
+  .atlase-text-heading-2 { font-size: 18px; }
+  .atlase-text-price { font-size: 18px; }
+}
+@media (min-width: var(--breakpoint-lg)) {
+  .atlase-text-display-1 { font-size: 64px; }
+  .atlase-text-display-2 { font-size: 48px; }
+  .atlase-text-display-3 { font-size: 32px; }
+  .atlase-text-heading-1 { font-size: 28px; }
+  .atlase-text-heading-2 { font-size: 20px; }
+  .atlase-text-price { font-size: 20px; }
+}
+
+/* ---- Focus ring (accent) + reduced motion ---- */
+.focus-ring {
+  outline: 2px solid var(--color-emerald);
+  outline-offset: 2px;
+}
+:where(.focus-ring):focus-visible {
+  outline: 2px solid var(--color-emerald);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+    scroll-behavior: auto !important;
+  }
+}

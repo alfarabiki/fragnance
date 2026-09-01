@@ -1,0 +1,22 @@
+{
+  "name": "@atlase/ui",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc --noEmit -p .",
+    "lint": "echo ok",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles": "./src/styles/tokens.css",
+    "./tokens": "./src/tokens.ts"
+  },
+  "devDependencies": {
+    "@types/node": "26.4.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "7.0.2",
+    "vitest": "3.2.7"
+  }
+}
