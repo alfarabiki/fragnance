@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PricingSimulator } from "@/components/pricing-simulator";
+import { PricingTierEditor } from "@/components/pricing-tier-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -34,10 +35,15 @@ export default async function PricingPage() {
           <TabsTrigger value="simulator">Simulator</TabsTrigger>
           <TabsTrigger value="fragrance">Fragrance</TabsTrigger>
           <TabsTrigger value="catalog">Botol & Packaging</TabsTrigger>
+          <TabsTrigger value="versions">Versi Pricing</TabsTrigger>
         </TabsList>
 
         <TabsContent value="simulator" className="pt-4">
           <PricingSimulator />
+        </TabsContent>
+
+        <TabsContent value="versions" className="pt-4">
+          <PricingTierEditor />
         </TabsContent>
 
         <TabsContent value="fragrance" className="pt-4">

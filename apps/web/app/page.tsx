@@ -9,6 +9,8 @@ import {
   Skeleton,
 } from "@atlase/ui";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { PriceTicker } from "@/components/PriceTicker";
+import { FaqAccordion } from "@/components/FaqAccordion";
 
 const featuredFragrances = [
   {
@@ -66,7 +68,7 @@ export default function HomePage() {
               <br />
               MADE PERSONAL.
             </h1>
-            <PriceDisplay price={29000} prefix />
+            <PriceTicker target={29000} />
             <p className="text-body-lg max-w-md text-muted-gray">
               Parfum premium yang bisa kamu sesuaikan dengan aroma dan budget
               kamu.
@@ -224,27 +226,13 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* 10. FAQ */}
+{/* 10. FAQ */}
       <section id="faq" className="py-24">
         <Container className="max-w-3xl">
           <SectionHeading eyebrow="FAQ" title="Pertanyaan Umum" />
-          <Stack className="mt-12 gap-4">
-            {[
-              ["Berapa harga parfumnya?", "Mulai dari Rp29.000. Harga naik sesuai ukuran dan kekuatan aroma yang kamu pilih."],
-              ["Bisa pilih ukuran?", "Tentu. Kamu bisa pilih 30, 50, 70, atau 100 ml."],
-              ["Bisa menentukan kekuatan aroma?", "Bisa. Atur lewat 'Atur Kekuatan Aroma' — dari Lembut hingga Kuat."],
-              ["Bisa pesan lewat WhatsApp?", "Bisa. Itu cara paling mudah. Kamu tinggal lanjut ke WhatsApp setelah pilih parfum."],
-              ["Bisa bayar dengan QRIS?", "Bisa. Bayar via QRIS langsung dari halaman pembayaran."],
-              ["Berapa lama proses pembuatannya?", "Setelah konfirmasi pesanan, biasanya 1-2 hari kerja."],
-              ["Bisa request botol?", "Bisa, tergantung ketersediaan. Hubungi kami via WhatsApp."],
-              ["Bisa pesan untuk hadiah?", "Bisa. Tambahkan packaging Premium atau Gift saat checkout."],
-            ].map(([q, a]) => (
-              <details key={q} className="group rounded-lg border border-black-400 p-4">
-                <summary className="cursor-pointer text-heading-2">{q}</summary>
-                <p className="text-body mt-3 text-muted-gray">{a}</p>
-              </details>
-            ))}
-          </Stack>
+          <div className="mt-12">
+            <FaqAccordion />
+          </div>
         </Container>
       </section>
 
