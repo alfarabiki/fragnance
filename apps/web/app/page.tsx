@@ -1,8 +1,10 @@
-import { Button, Container, SectionHeading, Stack, Badge, Skeleton } from "@atlase/ui";
+import Image from "next/image";
+import { Button, Container, SectionHeading, Stack, Badge } from "@atlase/ui";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { PriceTicker } from "@/components/PriceTicker";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { ScentField } from "@/components/ScentField";
+import { AmbientVideo } from "@/components/AmbientVideo";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/Reveal";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -153,17 +155,26 @@ export default function HomePage() {
       {/* 6. Build Your Perfume */}
       <section id="buat" className="py-24">
         <Container>
-          <Reveal>
-            <SectionHeading
-              eyebrow="Buat Sendiri"
-              title="Buat Parfum Kamu"
-              description="Sesuaikan dengan budget kamu. Info langsung berubah."
-            />
-          </Reveal>
-          {/* Placeholder builder — wired in Phase 3 (Customization Engine) */}
-          <Reveal delay={0.1} className="mt-12 rounded-lg border border-black-400 p-8">
-            <Skeleton variant="rect" className="aspect-[16/6] w-full" />
-          </Reveal>
+          <div className="grid gap-10 md:grid-cols-2 md:items-center">
+            <Reveal className="mx-auto w-full max-w-sm overflow-hidden rounded-lg border border-black-400">
+              <AmbientVideo
+                mp4="/video/build-panel.mp4"
+                webm="/video/build-panel.webm"
+                poster="/video/build-panel-poster.jpg"
+                className="aspect-[9/16] w-full object-cover"
+              />
+            </Reveal>
+            <Reveal delay={0.1}>
+              <SectionHeading
+                eyebrow="Buat Sendiri"
+                title="Buat Parfum Kamu"
+                description="Sesuaikan dengan budget kamu. Info langsung berubah."
+              />
+              <Button intent="primary" size="lg" className="mt-8" asChild>
+                <a href="/buat-parfum">Mulai Buat Parfum</a>
+              </Button>
+            </Reveal>
+          </div>
         </Container>
       </section>
 
@@ -187,23 +198,43 @@ export default function HomePage() {
           <Reveal>
             <SectionHeading
               eyebrow="Showcase"
-              title="Gram Wangi Mewah"
+              title="Ragam Wangi Mewah"
             />
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-2" stagger={0.12}>
-            <StaggerItem className="rounded-lg bg-black-600 p-8">
-              <Badge variant="info">Top Note</Badge>
-              <h3 className="text-heading-1 mt-3">Aroma Segar</h3>
-              <p className="text-body mt-2 text-muted-gray">
-                Untuk siang yang aktif.
-              </p>
+            <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
+              <Image
+                src="/images/showcase-fresh.jpg"
+                alt="Aroma segar dengan bunga dan madu"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-8">
+                <Badge variant="info">Top Note</Badge>
+                <h3 className="text-heading-1 mt-3">Aroma Segar</h3>
+                <p className="text-body mt-2 text-muted-gray">
+                  Untuk siang yang aktif.
+                </p>
+              </div>
             </StaggerItem>
-            <StaggerItem className="rounded-lg bg-black-600 p-8">
-              <Badge variant="success">Base Note</Badge>
-              <h3 className="text-heading-1 mt-3">Aroma Hangat</h3>
-              <p className="text-body mt-2 text-muted-gray">
-                Untuk malam yang elegan.
-              </p>
+            <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
+              <Image
+                src="/images/showcase-warm.jpg"
+                alt="Aroma hangat dengan botol emas"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-8">
+                <Badge variant="success">Base Note</Badge>
+                <h3 className="text-heading-1 mt-3">Aroma Hangat</h3>
+                <p className="text-body mt-2 text-muted-gray">
+                  Untuk malam yang elegan.
+                </p>
+              </div>
             </StaggerItem>
           </StaggerGroup>
         </Container>

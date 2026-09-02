@@ -1,13 +1,13 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import { AmbientVideo } from "@/components/AmbientVideo";
 
-// The hero's signature element: a slow-drifting field of soft emerald blooms
-// over a warm amber-bokeh photograph, evoking a fragrance diffusing through
-// air rather than a static product shot. Purely decorative — hidden from
-// assistive tech, never intercepts pointer events, freezes under
-// prefers-reduced-motion instead of animating.
+// The hero's signature element: real Atlase product footage (glass bottle,
+// dewdrops, mint sprig) under a slow-drifting field of soft emerald blooms —
+// evoking a fragrance diffusing through air rather than a static product
+// shot. The blooms are purely decorative — hidden from assistive tech, never
+// intercept pointer events, freeze under prefers-reduced-motion.
 export function ScentField() {
   const reduceMotion = useReducedMotion();
 
@@ -19,13 +19,11 @@ export function ScentField() {
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      <Image
-        src="/images/hero-glow.jpg"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover opacity-30"
+      <AmbientVideo
+        mp4="/video/hero-bg.mp4"
+        webm="/video/hero-bg.webm"
+        poster="/video/hero-bg-poster.jpg"
+        className="absolute inset-0 h-full w-full object-cover opacity-40"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-black/20" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />

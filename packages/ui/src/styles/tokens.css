@@ -9,6 +9,14 @@
 
 @import "tailwindcss";
 
+/* Tailwind v4 only scans the importing app's own source by default — it
+   never sees class names written inside this workspace package's .tsx
+   files (badge.tsx, button.tsx, etc). Any utility used ONLY there and
+   nowhere in the app's own source (e.g. `text-emerald-700`, `bg-success`)
+   silently never gets generated: no error, just an invisible no-op class.
+   This tells every consuming app's Tailwind build to scan this package too. */
+@source "../components";
+
 :root,
 :host {
   @theme {
@@ -161,7 +169,11 @@
   line-height: var(--text-display-1--line-height);
   font-weight: var(--text-display-1--font-weight);
   letter-spacing: -0.02em;
-  color: var(--color-text-primary);
+  /* No color here on purpose — display/heading/body scale is theme-neutral;
+     color comes from the surface it's on (body sets ivory for the dark
+     storefront, checkout-flow pages override to black on their ivory
+     surfaces). Baking --color-text-primary (black) in here made every
+     SectionHeading title invisible on black backgrounds. */
 }
 .atlase-text-display-2 {
   font-family: var(--font-display);
@@ -169,7 +181,6 @@
   line-height: var(--text-display-2--line-height);
   font-weight: var(--text-display-2--font-weight);
   letter-spacing: -0.02em;
-  color: var(--color-text-primary);
 }
 .atlase-text-display-3 {
   font-family: var(--font-display);
@@ -177,21 +188,18 @@
   line-height: var(--text-display-3--line-height);
   font-weight: var(--text-display-3--font-weight);
   letter-spacing: -0.02em;
-  color: var(--color-text-primary);
 }
 .atlase-text-heading-1 {
   font-family: var(--font-sans);
   font-size: var(--text-heading-1);
   line-height: var(--text-heading-1--line-height);
   font-weight: var(--text-heading-1--font-weight);
-  color: var(--color-text-primary);
 }
 .atlase-text-heading-2 {
   font-family: var(--font-sans);
   font-size: var(--text-heading-2);
   line-height: var(--text-heading-2--line-height);
   font-weight: var(--text-heading-2--font-weight);
-  color: var(--color-text-primary);
 }
 .atlase-text-subheading {
   font-family: var(--font-sans);
@@ -207,14 +215,12 @@
   font-size: var(--text-body-lg);
   line-height: var(--text-body-lg--line-height);
   font-weight: var(--text-body-lg--font-weight);
-  color: var(--color-text-primary);
 }
 .atlase-text-body {
   font-family: var(--font-sans);
   font-size: var(--text-body);
   line-height: var(--text-body--line-height);
   font-weight: var(--text-body--font-weight);
-  color: var(--color-text-primary);
 }
 .atlase-text-body-sm {
   font-family: var(--font-sans);
@@ -235,21 +241,18 @@
   font-size: var(--text-price);
   line-height: var(--text-price--line-height);
   font-weight: var(--text-price--font-weight);
-  color: var(--color-text-primary);
 }
 .atlase-text-button {
   font-family: var(--font-sans);
   font-size: var(--text-button);
   line-height: var(--text-button--line-height);
   font-weight: var(--text-button--font-weight);
-  color: var(--color-text-primary);
 }
 .atlase-text-label {
   font-family: var(--font-sans);
   font-size: var(--text-label);
   line-height: var(--text-label--line-height);
   font-weight: var(--text-label--font-weight);
-  color: var(--color-text-primary);
 }
 
 @media (min-width: var(--breakpoint-md)) {
