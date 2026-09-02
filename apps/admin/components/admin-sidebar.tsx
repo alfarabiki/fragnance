@@ -5,17 +5,8 @@ import {
   LayoutDashboard,
   Package,
   Droplets,
-  FlaskConical,
-  ScrollText,
   Wallet,
   Warehouse,
-  Users,
-  CreditCard,
-  MessageSquareText,
-  Percent,
-  BarChart3,
-  ShieldAlert,
-  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,17 +24,8 @@ export const ADMIN_MODULES = [
   { key: "dashboard", label: "Dashboard", href: "/", icon: LayoutDashboard },
   { key: "orders", label: "Orders", href: "/orders", icon: Package },
   { key: "fragrances", label: "Fragrances", href: "/fragrances", icon: Droplets },
-  { key: "bottles", label: "Bottles", href: "/bottles", icon: FlaskConical },
-  { key: "packaging", label: "Packaging", href: "/packaging", icon: ScrollText },
   { key: "pricing", label: "Pricing", href: "/pricing", icon: Wallet },
   { key: "inventory", label: "Inventory", href: "/inventory", icon: Warehouse },
-  { key: "customers", label: "Customers", href: "/customers", icon: Users },
-  { key: "payments", label: "Payments", href: "/payments", icon: CreditCard },
-  { key: "whatsapp", label: "WhatsApp", href: "/whatsapp", icon: MessageSquareText },
-  { key: "promotions", label: "Promotions", href: "/promotions", icon: Percent },
-  { key: "analytics", label: "Analytics", href: "/analytics", icon: BarChart3 },
-  { key: "audit", label: "Audit Logs", href: "/audit", icon: ShieldAlert },
-  { key: "settings", label: "Settings", href: "/settings", icon: Settings },
 ] as const;
 
 export function AdminSidebar() {
