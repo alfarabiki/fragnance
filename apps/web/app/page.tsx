@@ -11,6 +11,7 @@ import {
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { PriceTicker } from "@/components/PriceTicker";
 import { FaqAccordion } from "@/components/FaqAccordion";
+import { ProductImage } from "@/components/ProductImage";
 
 const featuredFragrances = [
   {
@@ -106,12 +107,13 @@ export default function HomePage() {
             description="Setiap aroma bisa kamu sesuaikan kekuatannya."
           />
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-{featuredFragrances.map((f) => (
+{featuredFragrances.map((f, i) => (
               <article
                 key={f.slug}
                 className="rounded-lg border border-black-400 bg-black-600 p-6 transition hover:-translate-y-1"
               >
                 <Stack className="gap-3">
+                  <ProductImage alt={f.name} priority={i === 0} />
                   <Pill>{f.badge}</Pill>
                   <h3 className="text-heading-1">{f.name}</h3>
                   <p className="text-body-sm text-muted-gray">{f.desc}</p>
