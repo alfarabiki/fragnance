@@ -8,6 +8,7 @@ import {
   PriceDisplay,
   Skeleton,
 } from "@atlase/ui";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 
 const featuredFragrances = [
   {
@@ -50,9 +51,7 @@ export default function HomePage() {
             <a href="#faq" className="text-body hover:text-emerald">
               FAQ
             </a>
-            <Button intent="secondary" size="sm">
-              Keranjang
-            </Button>
+            <CartDrawer />
           </Stack>
         </Container>
       </nav>

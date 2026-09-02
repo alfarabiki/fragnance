@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit -p .",
-    "test": "echo ok"
+"typecheck": "tsc --noEmit -p .",
+    "test": "vitest run"
   },
 "dependencies": {
     "@atlase/ui": "workspace:*",

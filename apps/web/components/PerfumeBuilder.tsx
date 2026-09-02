@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Container,
   Stack,
@@ -16,6 +17,7 @@ import {
   getBottlesByVolume,
   alcoholSellPerMl,
 } from "@atlase/config";
+import { useCart } from "./cart/CartProvider";
 
 const STRENGTH_PRESETS = [
   { label: "Lembut", ml: 15 },
@@ -81,6 +83,27 @@ export function PerfumeBuilder({
   };
 
   const strength = strengthMl;
+  const { addItem } = useCart();
+  const router = useRouter();
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = (channel?: "whatsapp") => {
+    if (!quote) return;
+    addItem({
+      fragranceId: fragrance.id,
+      fragranceName: fragrance.name,
+      volumeMl,
+      fragranceMl: strength,
+      bottleId: effectiveBottle.id,
+      bottleName: effectiveBottle.name,
+      packagingId: selectedPackaging.id,
+      packagingName: selectedPackaging.name,
+      unitPrice: quote.total,
+    });
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1800);
+    router.push(channel ? "/checkout?channel=whatsapp" : "/checkout");
+  };
 
   return (
     <Container>
@@ -276,10 +299,15 @@ export function PerfumeBuilder({
               ) : (
                 <p className="text-body text-error">Konfigurasi tidak tersedia.</p>
               )}
-              <Button intent="primary" size="lg" className="w-full">
-                Lanjut Pesan
+              <Button intent="primary" size="lg" className="w-full" onClick={() => handleAddToCart()}>
+                {added ? "✓ Masuk keranjang" : "Lanjut Pesan"}
               </Button>
-              <Button intent="outline" size="lg" className="w-full">
+              <Button
+                intent="outline"
+                size="lg"
+                className="w-full"
+                onClick={() => handleAddToCart("whatsapp")}
+              >
                 Pesan via WhatsApp
               </Button>
             </Stack>
