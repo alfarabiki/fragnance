@@ -59,13 +59,15 @@ on conflict do nothing;
 
 -- ADMIN → everything except users.manage
 insert into public.role_permissions (role_id, permission_id)
-select r.id, p.id from public.roles r join public.permissions p where r.code='ADMIN' and p.code <> 'users.manage'
-on conflict do nothing;
+select r.id, p.id from public.roles r cross join public.permissions p
+where r.code='ADMIN' and p.code <> 'users.manage'
+on conflict (role_id, permission_id) do nothing;
 
 -- SUPER_ADMIN → all
 insert into public.role_permissions (role_id, permission_id)
-select r.id, p.id from public.roles r join public.permissions p where r.code='SUPER_ADMIN'
-on conflict do nothing;
+select r.id, p.id from public.roles r cross join public.permissions p
+where r.code='SUPER_ADMIN'
+on conflict (role_id, permission_id) do nothing;
 
 -- ---------------------------------------------------------------------------
 -- Pricing version (v1.0 ACTIVE)
