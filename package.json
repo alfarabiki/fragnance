@@ -8,17 +8,23 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
+    "test:e2e": "playwright test --config e2e/playwright.config.ts",
+    "test:e2e:install": "playwright install",
     "db:dev": "supabase start",
     "db:migrate": "cd database && supabase db push",
     "db:types": "cd database && supabase gen types typescript --local > ../packages/types/src/generated/database.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.62.1",
     "eslint": "10.9.1",
     "prettier": "3.9.6",
     "turbo": "^2.3.0"
   },
   "engines": {
     "node": ">=20"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp"]
   }
 }

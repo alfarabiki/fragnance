@@ -1,3 +1,4 @@
+"use client"
 import * as React from "react";
 import { cn } from "../cn";
 
@@ -43,3 +44,4 @@ export const SectionHeading = React.forwardRef<
 });
 
 SectionHeading.displayName = "SectionHeading";
+

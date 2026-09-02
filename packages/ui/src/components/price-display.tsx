@@ -1,3 +1,4 @@
+"use client"
 import * as React from "react";
 import { cn } from "../cn";
 import { formatRupiah } from "../format-rupiah";
@@ -55,3 +56,4 @@ export const PriceDisplay = React.forwardRef<HTMLDivElement, PriceDisplayProps>(
 );
 
 PriceDisplay.displayName = "PriceDisplay";
+

@@ -1,3 +1,4 @@
+"use client"
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../cn";
@@ -51,3 +52,4 @@ export const Pill = React.forwardRef<HTMLElement, PillProps>((props, ref) => {
 });
 
 Pill.displayName = "Pill";
+
