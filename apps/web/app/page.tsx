@@ -1,34 +1,34 @@
-import Image from "next/image";
-import { Button, Container, SectionHeading, Stack, Badge } from "@atlase/ui";
-import { CartDrawer } from "@/components/cart/CartDrawer";
-import { PriceTicker } from "@/components/PriceTicker";
-import { FaqAccordion } from "@/components/FaqAccordion";
-import { ScentField } from "@/components/ScentField";
-import { AmbientVideo } from "@/components/AmbientVideo";
-import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/Reveal";
-import { ProductCard } from "@/components/ProductCard";
+import Image from 'next/image';
+import { Button, Container, SectionHeading, Stack, Badge } from '@atlase/ui';
+import { SiteNav } from '@/components/SiteNav';
+import { PriceTicker } from '@/components/PriceTicker';
+import { FaqAccordion } from '@/components/FaqAccordion';
+import { ScentField } from '@/components/ScentField';
+import { AmbientVideo } from '@/components/AmbientVideo';
+import { Reveal, StaggerGroup, StaggerItem } from '@/components/motion/Reveal';
+import { ProductCard } from '@/components/ProductCard';
 
 const featuredFragrances = [
   {
-    slug: "dior-inspired",
-    name: "Dior-inspired",
-    desc: "Aroma elegan · Cocok untuk malam",
+    slug: 'dior-inspired',
+    name: 'Dior-inspired',
+    desc: 'Aroma elegan · Cocok untuk malam',
     price: 29000,
-    badge: "BEST SELLER" as const,
+    badge: 'BEST SELLER' as const,
   },
   {
-    slug: "woody-fresh",
-    name: "Woody Fresh",
-    desc: "Segar setiap hari",
+    slug: 'woody-fresh',
+    name: 'Woody Fresh',
+    desc: 'Segar setiap hari',
     price: 29000,
-    badge: "POPULAR" as const,
+    badge: 'POPULAR' as const,
   },
   {
-    slug: "sweet-vanilla",
-    name: "Sweet Vanilla",
-    desc: "Manis dan hangat",
+    slug: 'sweet-vanilla',
+    name: 'Sweet Vanilla',
+    desc: 'Manis dan hangat',
     price: 39000,
-    badge: "NEW" as const,
+    badge: 'NEW' as const,
   },
 ];
 
@@ -36,23 +36,7 @@ export default function HomePage() {
   return (
     <>
       {/* 1. Navbar */}
-      <nav className="sticky top-0 z-[100] bg-black/85 backdrop-blur">
-        <Container className="flex h-16 items-center justify-between">
-          <span className="text-display-3 font-semibold">ATLASE</span>
-<Stack direction="row" className="items-center gap-6">
-            <a href="/produk/dior-inspired" className="text-body hover:text-emerald">
-              Aroma
-            </a>
-            <a href="/buat-parfum" className="text-body hover:text-emerald">
-              Buat Parfum
-            </a>
-            <a href="#faq" className="text-body hover:text-emerald">
-              FAQ
-            </a>
-            <CartDrawer />
-          </Stack>
-        </Container>
-      </nav>
+      <SiteNav />
 
       {/* 2. Hero */}
       <section className="relative overflow-hidden bg-black py-32 text-ivory">
@@ -74,8 +58,7 @@ export default function HomePage() {
             </StaggerItem>
             <StaggerItem>
               <p className="text-body-lg max-w-md text-muted-gray">
-                Parfum premium yang bisa kamu sesuaikan dengan aroma dan budget
-                kamu.
+                Parfum premium yang bisa kamu sesuaikan dengan aroma dan budget kamu.
               </p>
             </StaggerItem>
             <StaggerItem className="flex items-center gap-4">
@@ -95,9 +78,7 @@ export default function HomePage() {
         <Container className="py-8">
           <Stack direction="row" className="items-center justify-between gap-4">
             <span className="text-body">Mulai dari</span>
-            <strong className="text-display-2 text-emerald">
-              Rp29.000
-            </strong>
+            <strong className="text-display-2 text-emerald">Rp29.000</strong>
           </Stack>
         </Container>
       </section>
@@ -126,22 +107,19 @@ export default function HomePage() {
       <section className="bg-black-600 py-24">
         <Container>
           <Reveal>
-            <SectionHeading
-              eyebrow="Cara Kerja"
-              title="Gampang, 4 langkah"
-            />
+            <SectionHeading eyebrow="Cara Kerja" title="Gampang, 4 langkah" />
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-4" stagger={0.08}>
             {[
-              ["Pilih Aroma", "Tentukan wangi favoritmu"],
-              ["Atur Ukuran", "30, 50, 70, atau 100 ml"],
-              ["Sesuaikan", "Kekuatan aroma & botol"],
-              ["Pesan", "Langsung via WhatsApp atau QRIS"],
+              ['Pilih Aroma', 'Tentukan wangi favoritmu'],
+              ['Atur Ukuran', '30, 50, 70, atau 100 ml'],
+              ['Sesuaikan', 'Kekuatan aroma & botol'],
+              ['Pesan', 'Langsung via WhatsApp atau QRIS'],
             ].map(([t, d], i) => (
               <StaggerItem key={t}>
                 <Stack className="gap-2">
                   <span className="text-display-3 text-emerald">
-                    {String(i + 1).padStart(2, "0")}
+                    {String(i + 1).padStart(2, '0')}
                   </span>
                   <h3 className="text-heading-2">{t}</h3>
                   <p className="text-body text-muted-gray">{d}</p>
@@ -196,10 +174,7 @@ export default function HomePage() {
       <section className="py-24">
         <Container>
           <Reveal>
-            <SectionHeading
-              eyebrow="Showcase"
-              title="Ragam Wangi Mewah"
-            />
+            <SectionHeading eyebrow="Showcase" title="Ragam Wangi Mewah" />
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-2" stagger={0.12}>
             <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
@@ -214,9 +189,7 @@ export default function HomePage() {
               <div className="absolute inset-x-0 bottom-0 p-8">
                 <Badge variant="info">Top Note</Badge>
                 <h3 className="text-heading-1 mt-3">Aroma Segar</h3>
-                <p className="text-body mt-2 text-muted-gray">
-                  Untuk siang yang aktif.
-                </p>
+                <p className="text-body mt-2 text-muted-gray">Untuk siang yang aktif.</p>
               </div>
             </StaggerItem>
             <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
@@ -231,9 +204,7 @@ export default function HomePage() {
               <div className="absolute inset-x-0 bottom-0 p-8">
                 <Badge variant="success">Base Note</Badge>
                 <h3 className="text-heading-1 mt-3">Aroma Hangat</h3>
-                <p className="text-body mt-2 text-muted-gray">
-                  Untuk malam yang elegan.
-                </p>
+                <p className="text-body mt-2 text-muted-gray">Untuk malam yang elegan.</p>
               </div>
             </StaggerItem>
           </StaggerGroup>
@@ -248,16 +219,14 @@ export default function HomePage() {
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-3" stagger={0.1}>
             {[
-              ["Siti", "Wanginya tahan lama, harganya cocok!"],
-              ["Andi", "Gampang banget atur kekuatannya."],
-              ["Rina", "Pesan via WhatsApp, langsung diantar."],
+              ['Siti', 'Wanginya tahan lama, harganya cocok!'],
+              ['Andi', 'Gampang banget atur kekuatannya.'],
+              ['Rina', 'Pesan via WhatsApp, langsung diantar.'],
             ].map(([n, q]) => (
               <StaggerItem key={n} className="rounded-lg border border-black-400 p-6">
                 <figure>
                   <blockquote className="text-body">"{q}"</blockquote>
-                  <figcaption className="text-caption mt-3 text-muted-gray">
-                    — {n}
-                  </figcaption>
+                  <figcaption className="text-caption mt-3 text-muted-gray">— {n}</figcaption>
                 </figure>
               </StaggerItem>
             ))}
@@ -282,9 +251,7 @@ export default function HomePage() {
         <Container>
           <Reveal>
             <Stack className="items-center gap-6">
-              <h2 className="text-display-3 font-semibold">
-                Tinggal WhatsApp.
-              </h2>
+              <h2 className="text-display-3 font-semibold">Tinggal WhatsApp.</h2>
               <p className="text-body-lg max-w-md text-muted-gray">
                 Pesan mudah, harga transparan, dan bisa bayar QRIS.
               </p>
@@ -312,4 +279,3 @@ export default function HomePage() {
     </>
   );
 }
-

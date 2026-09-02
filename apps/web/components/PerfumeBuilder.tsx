@@ -8,6 +8,7 @@ import {
   Pill,
   Button,
   PriceDisplay,
+  OptionCard,
 } from "@atlase/ui";
 import { calculate, PricingError } from "@atlase/pricing";
 import {
@@ -113,29 +114,16 @@ export function PerfumeBuilder({
           {/* Step 1: Aroma */}
           <section>
             <h2 className="text-subheading text-muted-gray">1 · Pilih Aroma</h2>
-            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {fragrances.map((f) => (
-                <button
+                <OptionCard
                   key={f.id}
-                  type="button"
+                  selected={fragranceId === f.id}
                   onClick={() => setFragranceId(f.id)}
-                  aria-pressed={fragranceId === f.id}
-                  className={`rounded-lg border p-4 text-left transition ${
-                    fragranceId === f.id
-                      ? "border-emerald bg-emerald-50"
-                      : "border-black-400 bg-black-600"
-                  }`}
-                >
-                  <span className="block text-body font-medium text-ivory">
-                    {f.name}
-                  </span>
-                  <span className="block text-caption text-muted-gray">
-                    {f.description}
-                  </span>
-                  {f.badge ? (
-                    <Pill className="mt-2 text-black">{f.badge}</Pill>
-                  ) : null}
-                </button>
+                  title={f.name}
+                  description={f.description}
+                  badge={f.badge ? <Pill className="text-black">{f.badge}</Pill> : undefined}
+                />
               ))}
             </div>
           </section>
@@ -228,24 +216,15 @@ export function PerfumeBuilder({
           {/* Step 4: Bottle */}
           <section>
             <h2 className="text-subheading text-muted-gray">4 · Pilih Botol</h2>
-            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {availableBottles.map((b) => (
-                <button
+                <OptionCard
                   key={b.id}
-                  type="button"
+                  selected={effectiveBottle.id === b.id}
                   onClick={() => setBottleId(b.id)}
-                  aria-pressed={effectiveBottle.id === b.id}
-                  className={`rounded-lg border p-4 text-left transition ${
-                    effectiveBottle.id === b.id
-                      ? "border-emerald bg-emerald-50"
-                      : "border-black-400 bg-black-600"
-                  }`}
-                >
-                  <span className="block text-body font-medium text-ivory">{b.name}</span>
-                  <span className="block text-caption text-muted-gray">
-                    {b.volumeMl} ml
-                  </span>
-                </button>
+                  title={b.name}
+                  description={`${b.volumeMl} ml`}
+                />
               ))}
             </div>
           </section>
@@ -253,24 +232,15 @@ export function PerfumeBuilder({
           {/* Step 5: Packaging */}
           <section>
             <h2 className="text-subheading text-muted-gray">5 · Pilih Packaging</h2>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {packaging.map((p) => (
-                <button
+                <OptionCard
                   key={p.id}
-                  type="button"
+                  selected={packagingId === p.id}
                   onClick={() => setPackagingId(p.id)}
-                  aria-pressed={packagingId === p.id}
-                  className={`rounded-lg border p-4 text-left transition ${
-                    packagingId === p.id
-                      ? "border-emerald bg-emerald-50"
-                      : "border-black-400 bg-black-600"
-                  }`}
-                >
-                  <span className="block text-body font-medium text-ivory">{p.name}</span>
-                  <span className="block text-caption text-muted-gray">
-                    Terinspirasi keindahan persembahan
-                  </span>
-                </button>
+                  title={p.name}
+                  description="Terinspirasi keindahan persembahan"
+                />
               ))}
             </div>
           </section>

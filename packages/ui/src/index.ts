@@ -28,3 +28,6 @@ export type {
   PriceDisplayBreakdownItem,
   PriceDisplayProps,
 } from "./components/price-display";
+
+export { OptionCard } from "./components/option-card";
+export type { OptionCardProps } from "./components/option-card";
