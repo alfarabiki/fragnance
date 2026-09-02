@@ -61,12 +61,9 @@ export default function HomePage() {
                 Parfum premium yang bisa kamu sesuaikan dengan aroma dan budget kamu.
               </p>
             </StaggerItem>
-            <StaggerItem className="flex items-center gap-4">
+            <StaggerItem>
               <Button intent="primary" size="lg" asChild>
                 <a href="/buat-parfum">Pilih Aroma</a>
-              </Button>
-              <Button intent="outline" size="lg" asChild>
-                <a href="/buat-parfum">Buat Parfum</a>
               </Button>
             </StaggerItem>
           </StaggerGroup>
