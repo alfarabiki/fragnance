@@ -6,9 +6,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("full QRIS journey: build → cart → address → QRIS → paid → success", async ({ page }) => {
-  // Build a perfume (default is fine)
-  await page.getByRole("button", { name: /Lanjut Pesan/i }).click();
-  await page.waitForURL("**/checkout");
+  // Build a perfume (default is fine) and add to cart
+  await page.getByRole("button", { name: /Tambah ke Keranjang/i }).click();
+  await expect(page.getByText("✓ Masuk keranjang")).toBeVisible({ timeout: 3000 });
+
+  // Customer proceeds to checkout when ready (via cart drawer in real use)
+  await page.goto("/checkout");
   await expect(page.getByText("Pesananmu").first()).toBeVisible();
 
   // Go to address

@@ -10,12 +10,13 @@ test("full WhatsApp journey: build → cart → address → whatsapp handoff", a
   await page.getByRole("button", { name: "Kuat" }).click();
   await expect(page.getByText("35 ml").first()).toBeVisible();
 
-  // Add to cart via "Lanjut Pesan"
-  await page.getByRole("button", { name: /Lanjut Pesan/i }).click();
+  // Add to cart — stays on the builder so more items could be added
+  await page.getByRole("button", { name: /Tambah ke Keranjang/i }).click();
   await expect(page.getByText("✓ Masuk keranjang")).toBeVisible({ timeout: 3000 });
+  await expect(page).toHaveURL(/\/buat-parfum/);
 
-  // Should navigate to /checkout
-  await page.waitForURL("**/checkout");
+  // Customer proceeds to checkout when ready (via cart drawer in real use)
+  await page.goto("/checkout");
   await expect(page.getByText("Pesananmu").first()).toBeVisible();
   await expect(page.getByText("Dior-inspired").first()).toBeVisible();
 

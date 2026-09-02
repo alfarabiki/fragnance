@@ -22,11 +22,24 @@ export function CartDrawer() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Buka keranjang"
-        className="relative inline-flex items-center justify-center rounded-md px-3 py-2 text-body text-ivory hover:text-emerald"
+        className="relative inline-flex items-center justify-center rounded-md p-2 text-ivory hover:text-emerald"
       >
-        Keranjang
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 8h12l-1 12.5a1.5 1.5 0 0 1-1.5 1.5h-7a1.5 1.5 0 0 1-1.5-1.5L6 8Z" />
+          <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+        </svg>
         {count > 0 ? (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald px-1 text-caption font-semibold text-black">
+          <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald px-1 text-caption font-semibold text-black">
             {count}
           </span>
         ) : null}

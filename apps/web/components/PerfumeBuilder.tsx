@@ -88,7 +88,11 @@ export function PerfumeBuilder({
   const router = useRouter();
   const [added, setAdded] = useState(false);
 
-  const handleAddToCart = (channel?: "whatsapp") => {
+  // "cart" stays on the builder so customers can add more than one perfume
+  // before checking out — the usual add-to-cart-then-checkout-when-ready
+  // shape. "whatsapp" is a deliberate one-click fast path for someone who
+  // already knows they only want this one, straight to WhatsApp handoff.
+  const handleAddToCart = (mode: "cart" | "whatsapp") => {
     if (!quote) return;
     addItem({
       fragranceId: fragrance.id,
@@ -101,9 +105,12 @@ export function PerfumeBuilder({
       packagingName: selectedPackaging.name,
       unitPrice: quote.total,
     });
+    if (mode === "whatsapp") {
+      router.push("/checkout?channel=whatsapp");
+      return;
+    }
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1800);
-    router.push(channel ? "/checkout?channel=whatsapp" : "/checkout");
   };
 
   return (
@@ -269,8 +276,8 @@ export function PerfumeBuilder({
               ) : (
                 <p className="text-body text-error">Konfigurasi tidak tersedia.</p>
               )}
-              <Button intent="primary" size="lg" className="w-full" onClick={() => handleAddToCart()}>
-                {added ? "✓ Masuk keranjang" : "Lanjut Pesan"}
+              <Button intent="primary" size="lg" className="w-full" onClick={() => handleAddToCart("cart")}>
+                {added ? "✓ Masuk keranjang" : "Tambah ke Keranjang"}
               </Button>
               <Button
                 intent="outline"
@@ -280,6 +287,11 @@ export function PerfumeBuilder({
               >
                 Pesan via WhatsApp
               </Button>
+              {added ? (
+                <p className="text-center text-caption text-muted-gray">
+                  Bisa lanjut atur parfum lain, atau buka keranjang buat checkout.
+                </p>
+              ) : null}
             </Stack>
           </div>
         </aside>
