@@ -11,21 +11,21 @@ import {
 
 const featuredFragrances = [
   {
-    id: "dior",
+    slug: "dior-inspired",
     name: "Dior-inspired",
     desc: "Aroma elegan · Cocok untuk malam",
     price: 29000,
     badge: "BEST SELLER" as const,
   },
   {
-    id: "woody",
+    slug: "woody-fresh",
     name: "Woody Fresh",
     desc: "Segar setiap hari",
     price: 29000,
     badge: "POPULAR" as const,
   },
   {
-    id: "sweet",
+    slug: "sweet-vanilla",
     name: "Sweet Vanilla",
     desc: "Manis dan hangat",
     price: 39000,
@@ -40,11 +40,11 @@ export default function HomePage() {
       <nav className="sticky top-0 z-[100] bg-black/85 backdrop-blur">
         <Container className="flex h-16 items-center justify-between">
           <span className="text-display-3 font-semibold">ATLASE</span>
-          <Stack direction="row" className="items-center gap-6">
-            <a href="#aroma" className="text-body hover:text-emerald">
+<Stack direction="row" className="items-center gap-6">
+            <a href="/produk/dior-inspired" className="text-body hover:text-emerald">
               Aroma
             </a>
-            <a href="#buat" className="text-body hover:text-emerald">
+            <a href="/buat-parfum" className="text-body hover:text-emerald">
               Buat Parfum
             </a>
             <a href="#faq" className="text-body hover:text-emerald">
@@ -72,12 +72,12 @@ export default function HomePage() {
               Parfum premium yang bisa kamu sesuaikan dengan aroma dan budget
               kamu.
             </p>
-            <div className="flex gap-4 item-center">
+<div className="flex gap-4 item-center">
               <Button intent="primary" size="lg" asChild>
-                <a href="#aroma">Pilih Aroma</a>
+                <a href="/buat-parfum">Pilih Aroma</a>
               </Button>
               <Button intent="outline" size="lg" asChild>
-                <a href="#buat">Buat Parfum</a>
+                <a href="/buat-parfum">Buat Parfum</a>
               </Button>
             </div>
           </Stack>
@@ -105,9 +105,9 @@ export default function HomePage() {
             description="Setiap aroma bisa kamu sesuaikan kekuatannya."
           />
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {featuredFragrances.map((f) => (
+{featuredFragrances.map((f) => (
               <article
-                key={f.id}
+                key={f.slug}
                 className="rounded-lg border border-black-400 bg-black-600 p-6 transition hover:-translate-y-1"
               >
                 <Stack className="gap-3">
@@ -116,7 +116,7 @@ export default function HomePage() {
                   <p className="text-body-sm text-muted-gray">{f.desc}</p>
                   <PriceDisplay price={f.price} prefix />
                   <Button intent="primary" size="md" asChild>
-                    <a href="#buat">Pilih Aroma</a>
+                    <a href={`/produk/${f.slug}`}>Pilih Aroma</a>
                   </Button>
                 </Stack>
               </article>

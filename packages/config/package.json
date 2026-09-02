@@ -2,9 +2,18 @@
   "name": "@atlase/config",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./catalog": "./src/catalog.ts"
+  },
   "scripts": {
-    "build": "echo ok",
+    "build": "tsc --noEmit -p tsconfig.build.json",
     "lint": "echo ok",
-    "typecheck": "echo ok"
+    "typecheck": "tsc --noEmit -p tsconfig.build.json",
+    "test": "echo ok"
+  },
+  "devDependencies": {
+    "typescript": "5.7.2"
   }
 }

@@ -66,9 +66,15 @@ importers:
 
   apps/web:
     dependencies:
+      '@atlase/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@atlase/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@atlase/pricing':
+        specifier: workspace:*
+        version: link:../../packages/pricing
       '@atlase/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -104,9 +110,25 @@ importers:
         specifier: 3.2.7
         version: 3.2.7(@types/node@26.4.0)
 
-  packages/config: {}
+  packages/config:
+    devDependencies:
+      typescript:
+        specifier: 5.7.2
+        version: 5.7.2
 
   packages/domain:
+    devDependencies:
+      '@types/node':
+        specifier: 26.4.0
+        version: 26.4.0
+      typescript:
+        specifier: 5.7.2
+        version: 5.7.2
+      vitest:
+        specifier: 3.2.7
+        version: 3.2.7(@types/node@26.4.0)
+
+  packages/pricing:
     devDependencies:
       '@types/node':
         specifier: 26.4.0
