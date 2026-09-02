@@ -10,11 +10,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fragrances, bottles, packaging } from "@atlase/config";
+import { listFragrances, listBottles, listPackaging } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const [fragranceRows, bottleRows, packagingRows] = await Promise.all([
+    listFragrances(),
+    listBottles(),
+    listPackaging(),
+  ]);
   return (
     <div className="space-y-6">
       <div>
@@ -54,15 +59,15 @@ export default function PricingPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {fragrances.map((f) => (
-                    <TableRow key={f.id}>
-                      <TableCell className="font-medium">{f.name}</TableCell>
-                      <TableCell>{f.category}</TableCell>
-                      <TableCell>Rp{f.costPerMl}</TableCell>
-                      <TableCell className="font-semibold">Rp{f.pricePerMl}</TableCell>
-                      <TableCell>{f.minMl}–{f.maxMl} ml</TableCell>
+                  {fragranceRows.map((f) => (
+                    <TableRow key={String(f.id)}>
+                      <TableCell className="font-medium">{String(f.name)}</TableCell>
+                      <TableCell>{String(f.category ?? "")}</TableCell>
+                      <TableCell>Rp{Number(f.cost_per_ml).toLocaleString("id-ID")}</TableCell>
+                      <TableCell className="font-semibold">Rp{Number(f.price_per_ml).toLocaleString("id-ID")}</TableCell>
+                      <TableCell>{String(f.min_ml)}–{String(f.max_ml)} ml</TableCell>
                       <TableCell>
-                        {f.isActive ? <Badge variant="default">Aktif</Badge> : <Badge variant="secondary">Nonaktif</Badge>}
+                        {f.is_active ? <Badge variant="default">Aktif</Badge> : <Badge variant="secondary">Nonaktif</Badge>}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -88,12 +93,12 @@ export default function PricingPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {bottles.map((b) => (
-                    <TableRow key={b.id}>
-                      <TableCell className="font-medium">{b.name}</TableCell>
-                      <TableCell>{b.volumeMl} ml</TableCell>
-                      <TableCell>Rp{b.costPrice}</TableCell>
-                      <TableCell>Rp{b.sellPrice}</TableCell>
+                  {bottleRows.map((b) => (
+                    <TableRow key={String(b.id)}>
+                      <TableCell className="font-medium">{String(b.name)}</TableCell>
+                      <TableCell>{String(b.volume_ml)} ml</TableCell>
+                      <TableCell>Rp{Number(b.cost_price).toLocaleString("id-ID")}</TableCell>
+                      <TableCell>Rp{Number(b.sell_price).toLocaleString("id-ID")}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -115,12 +120,12 @@ export default function PricingPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {packaging.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-medium">{p.name}</TableCell>
-                      <TableCell>Rp{p.costPrice}</TableCell>
-                      <TableCell>Rp{p.sellPrice}</TableCell>
-                      <TableCell>{p.isMandatory ? "Ya" : "Tidak"}</TableCell>
+                  {packagingRows.map((p) => (
+                    <TableRow key={String(p.id)}>
+                      <TableCell className="font-medium">{String(p.name)}</TableCell>
+                      <TableCell>Rp{Number(p.cost_price).toLocaleString("id-ID")}</TableCell>
+                      <TableCell>Rp{Number(p.sell_price).toLocaleString("id-ID")}</TableCell>
+                      <TableCell>{p.is_mandatory ? "Ya" : "Tidak"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

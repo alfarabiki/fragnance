@@ -8,11 +8,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { bottles, packaging } from "@atlase/config";
+import { listBottles, listPackaging } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
-export default function InventoryPage() {
+export default async function InventoryPage() {
+  const [bottleRows, packagingRows] = await Promise.all([listBottles(), listPackaging()]);
   const bottleStock = 100;
   const packagingStock = 200;
 
@@ -41,10 +42,10 @@ export default function InventoryPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {bottles.map((b) => (
-                <TableRow key={b.id}>
-                  <TableCell className="font-medium">{b.name}</TableCell>
-                  <TableCell>{b.volumeMl} ml</TableCell>
+              {bottleRows.map((b) => (
+                <TableRow key={String(b.id)}>
+                  <TableCell className="font-medium">{String(b.name)}</TableCell>
+                  <TableCell>{String(b.volume_ml)} ml</TableCell>
                   <TableCell>{bottleStock}</TableCell>
                   <TableCell>
                     <Badge variant="default">Tersedia</Badge>
@@ -70,9 +71,9 @@ export default function InventoryPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {packaging.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.name}</TableCell>
+              {packagingRows.map((p) => (
+                <TableRow key={String(p.id)}>
+                  <TableCell className="font-medium">{String(p.name)}</TableCell>
                   <TableCell>{packagingStock}</TableCell>
                 </TableRow>
               ))}

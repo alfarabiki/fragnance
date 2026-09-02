@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { listOrders } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -19,12 +20,8 @@ const stats = [
   { label: "WhatsApp", value: "0", hint: "Channel" },
 ];
 
-const recentOrders: Array<{ id: string; status: "PAID" | "DRAFT" | "CONFIRMED"; customer: string; total: string }> = [
-  { id: "ATL-260902-000001", status: "PAID", customer: "Anonim", total: "Rp89.000" },
-  { id: "ATL-260902-000002", status: "DRAFT", customer: "Anonim", total: "Rp75.000" },
-];
-
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const orders = await listOrders();
   return (
     <div className="space-y-6">
       <div>
@@ -63,25 +60,29 @@ export default function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentOrders.length === 0 ? (
+              {orders.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                     Belum ada pesanan.
                   </TableCell>
                 </TableRow>
               ) : (
-                recentOrders.map((o) => (
+                orders.map((o) => (
                   <TableRow key={o.id}>
-                    <TableCell className="font-medium">{o.id}</TableCell>
-                    <TableCell>{o.customer}</TableCell>
+                    <TableCell className="font-medium">{o.order_number}</TableCell>
+                    <TableCell>{o.customer_id ?? "Anonim"}</TableCell>
                     <TableCell>
                       <Badge variant={o.status === "PAID" ? "default" : "secondary"}>
-                        {o.status}
+                        {o.status ?? "DRAFT"}
                       </Badge>
                     </TableCell>
-                    <TableCell>{o.total}</TableCell>
+                    <TableCell>
+                      {o.total != null ? `Rp${o.total.toLocaleString("id-ID")}` : "—"}
+                    </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" render={<a href={`/orders/${o.id}`} />}>
+                      <Button variant="ghost" size="sm" render={
+                        <a href={`/orders/${o.order_number}`} />
+                      }>
                         Detail
                       </Button>
                     </TableCell>

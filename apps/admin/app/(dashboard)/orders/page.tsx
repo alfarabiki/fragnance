@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -7,10 +8,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { listOrders } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
-export default function OrdersPage() {
+export default async function OrdersPage() {
+  const orders = await listOrders();
+
   return (
     <div className="space-y-6">
       <div>
@@ -24,8 +29,8 @@ export default function OrdersPage() {
         <CardHeader>
           <CardTitle>Semua Pesanan</CardTitle>
           <CardDescription>
-            Data muncul setelah storefront terhubung ke Supabase (system of
-            record) dan pesanan dibuat.
+            Data dari system of record (Supabase). Menampilkan fallback seeded
+            bila belum terkoneksi.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -33,7 +38,6 @@ export default function OrdersPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Order</TableHead>
-                <TableHead>Customer</TableHead>
                 <TableHead>Channel</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Total</TableHead>
@@ -41,14 +45,38 @@ export default function OrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  Belum ada pesanan. Hubungkan Supabase untuk melihat data.
-                </TableCell>
-              </TableRow>
+              {orders.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    Belum ada pesanan.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                orders.map((o) => (
+                  <TableRow key={o.id}>
+                    <TableCell className="font-medium">{o.order_number}</TableCell>
+                    <TableCell>{o.channel ?? "WHATSAPP"}</TableCell>
+                    <TableCell>
+                      <Badge variant={o.status === "PAID" ? "default" : "secondary"}>
+                        {o.status ?? "DRAFT"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {o.total != null ? `Rp${o.total.toLocaleString("id-ID")}` : "—"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" render={
+                        <a href={`/orders/${o.order_number}`} />
+                      }>
+                        Detail
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
