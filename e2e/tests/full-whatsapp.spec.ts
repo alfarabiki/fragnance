@@ -43,7 +43,7 @@ test("full WhatsApp journey: build → cart → address → whatsapp handoff", a
   const link = page.locator('a[href^="https://wa.me"]');
   await expect(link).toBeVisible();
   const href = (await link.getAttribute("href")) || "";
-  expect(href).toContain("wa.me/62812");
+  expect(href).toContain("wa.me/6287887753802");
   expect(href).toContain("Dior-inspired");
   expect(href).toContain("ATL-");
 

@@ -256,7 +256,7 @@ export default function HomePage() {
                 Pesan mudah, harga transparan, dan bisa bayar QRIS.
               </p>
               <Button intent="primary" size="xl" asChild>
-                <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/6287887753802" target="_blank" rel="noopener noreferrer">
                   Pesan via WhatsApp
                 </a>
               </Button>

@@ -10,7 +10,7 @@ import { track } from "@/lib/analytics";
 
 type Channel = "whatsapp" | "qris";
 
-const BUSINESS_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "6281234567890";
+const BUSINESS_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "6287887753802";
 
 function PaymentContent() {
   const searchParams = useSearchParams();

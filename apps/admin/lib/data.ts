@@ -56,18 +56,36 @@ export async function listFragrances(): Promise<Row[]> {
     return fragrances.map((f) => ({
       id: f.id,
       name: f.name,
+      description: f.description,
       category: f.category,
       cost_per_ml: f.costPerMl,
       price_per_ml: f.pricePerMl,
       min_ml: f.minMl,
       max_ml: f.maxMl,
       is_active: f.isActive,
+      image_url: null,
+      video_url: null,
     }));
   }
   const db = await adminClient();
-  const { data, error } = await db.from("fragrances").select("*");
+  const { data, error } = await db.from("fragrances").select("*").order("name");
   if (error) return [];
-  return (data as unknown as Row[]) ?? [];
+
+  // cost/price live in fragrance_pricing (versioned, §17), not on the
+  // fragrances row itself — select("*") alone silently returns rows with no
+  // price at all. Join in the ACTIVE version's numbers.
+  const { data: pricingRaw } = await db
+    .from("fragrance_pricing")
+    .select("fragrance_id, cost_per_ml, price_per_ml")
+    .eq("active", true);
+  const pricing = (pricingRaw as unknown as Row[]) ?? [];
+  const priceByFragrance = new Map(pricing.map((p) => [p.fragrance_id as string, p]));
+
+  return ((data as unknown as Row[]) ?? []).map((f) => ({
+    ...f,
+    cost_per_ml: priceByFragrance.get(f.id as string)?.cost_per_ml ?? 0,
+    price_per_ml: priceByFragrance.get(f.id as string)?.price_per_ml ?? 0,
+  }));
 }
 
 export async function listBottles(): Promise<Row[]> {
