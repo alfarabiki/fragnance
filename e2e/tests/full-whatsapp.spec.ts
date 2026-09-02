@@ -47,6 +47,11 @@ test("full WhatsApp journey: build → cart → address → whatsapp handoff", a
   expect(href).toContain("wa.me/6287887753802");
   expect(href).toContain("Dior-inspired");
   expect(href).toContain("ATL-");
+  expect(href).toContain(
+    encodeURIComponent(
+      "Jl. Wolter Monginsidi No. 21, Kebayoran Baru, Jakarta Selatan, DKI Jakarta",
+    ),
+  );
 
   // Complete handoff → success
   await page.getByRole("button", { name: /Saya sudah mengirim pesanan/i }).click();

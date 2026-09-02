@@ -81,6 +81,8 @@ function CheckoutContent() {
           idempotencyKey,
           channel,
           customer: { name: form.recipientName, phone: form.phone },
+          // provinsi/kota/kecamatan kept as "" — /api/orders + order_addresses
+          // still require these columns; region detail now lives entirely in fullAddress.
           address: {
             recipientName: form.recipientName,
             phone: form.phone,
@@ -197,7 +199,7 @@ function CheckoutContent() {
                 />
               </label>
             </div>
-            <div className="mt-4 max-w-[200px]">
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Kode Pos" value={form.postalCode} onChange={update("postalCode")} placeholder="5 digit" />
             </div>
             <div className="mt-2">

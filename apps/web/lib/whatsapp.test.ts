@@ -19,9 +19,9 @@ const address = {
   recipientName: "Budi",
   phone: "081234567890",
   fullAddress: "Jl. Wolter Monginsidi No. 21",
-  district: "Kebayoran Baru",
-  city: "Jakarta Selatan",
-  province: "DKI Jakarta",
+  district: "",
+  city: "",
+  province: "",
   postalCode: "12110",
 };
 
@@ -75,8 +75,7 @@ describe("whatsapp message (§6 template)", () => {
     expect(msg).toContain("Rp89.000");
     expect(msg).toContain("Budi");
     expect(msg).toContain("Jl. Wolter Monginsidi No. 21");
-    expect(msg).toContain("Jakarta Selatan");
-    expect(msg).toContain("DKI Jakarta");
+    expect(msg).not.toContain("Kecamatan:");
     expect(msg).toContain("12110");
     expect(msg).toContain("Mohon dibantu proses pesanannya.");
   });

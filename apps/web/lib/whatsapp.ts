@@ -77,15 +77,15 @@ export function buildWhatsAppMessage(input: OrderMessageInput): string {
           "",
           "Alamat:",
           input.address.fullAddress,
-          "",
-          "Kecamatan:",
-          input.address.district,
-          "",
-          "Kota/Kabupaten:",
-          input.address.city,
-          "",
-          "Provinsi:",
-          input.address.province,
+          ...(
+            [
+              ["Kecamatan:", input.address.district],
+              ["Kota/Kabupaten:", input.address.city],
+              ["Provinsi:", input.address.province],
+            ] as const
+          )
+            .filter(([, v]) => v.trim() !== "")
+            .flatMap(([label, v]) => ["", label, v]),
           "",
           "Kode Pos:",
           input.address.postalCode,
