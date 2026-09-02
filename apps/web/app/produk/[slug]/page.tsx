@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { PerfumeBuilder } from "@/components/PerfumeBuilder";
 import { Container, Stack, Badge } from "@atlase/ui";
 import { getFragranceBySlug, fragrances } from "@atlase/config";
@@ -7,6 +8,27 @@ type Params = { slug: string };
 
 export function generateStaticParams(): Params[] {
   return fragrances.map((f) => ({ slug: f.slug }));
+}
+
+export function generateMetadata({ params }: { params: Params }): Metadata {
+  const fragrance = getFragranceBySlug(params.slug);
+  if (!fragrance) return {};
+
+  const title = `${fragrance.name} — Parfum Custom | ATLASE`;
+  const description = `${fragrance.description}. ${fragrance.detail} Mulai dari Rp${fragrance.pricePerMl.toLocaleString("id-ID")}/ml, bisa kamu sesuaikan sendiri.`;
+  const canonical = `/produk/${fragrance.slug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "website",
+    },
+  };
 }
 
 export default async function ProdukPage({ params }: { params: Params }) {

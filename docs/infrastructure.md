@@ -1,5 +1,24 @@
 # ATLASE — Infrastructure
 
+## 0. Implementation Status (2026-09-02)
+
+This document describes the **target architecture**. Verified against the actual repo — most of it is not built yet.
+
+| Component | Status | Evidence |
+|---|---|---|
+| Supabase Postgres + RLS | ✅ Implemented | Project `ecztdymcmzcaffdwhjur` linked, 27 tables, 8 enums, migrations + seeds run |
+| Supabase Auth (admin RBAC) | ✅ Implemented | Admin login wired, roles/permissions seeded |
+| Midtrans QRIS + webhook | ✅ Implemented | Transaction creation + signature-verified webhook, idempotent |
+| CI (GitHub Actions) | 🟡 Partial | Lint/typecheck/test/build/E2E run on every PR; **no deploy step, no migration dry-run** despite §10 below |
+| Vercel hosting | ⬜ Not started | No `.vercel/` project link in repo |
+| Cloudflare CDN/WAF | ⬜ Not started | No DNS/zone configured |
+| Rate limiting (order/payment endpoints) | 🟡 Partial | In-memory sliding window (`apps/web/lib/security.ts`) — per-instance only, not shared across serverless instances. Upgrade to Upstash Redis when an account exists and multi-instance traffic makes this a real gap |
+| CSRF / origin check (order/payment endpoints) | ✅ Implemented | Same-origin check on `Origin` vs `Host` header (`apps/web/lib/security.ts`); webhook relies on Midtrans signature verification instead |
+| Sentry error tracking | 🟡 Scaffolded | `@sentry/nextjs` installed + wired (server/edge/client configs, `instrumentation.ts`, `next.config.js` wrapped) in both apps. No-op until `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN` env vars are set — needs a Sentry org/project to activate |
+| Supabase Storage (product images) | ⬜ Not started | Not wired into admin upload flow yet |
+
+Sections 2–14 below are the plan to build toward. Do not assume any of it exists just because it's documented here.
+
 ## 1. Architecture Overview
 
 ```mermaid

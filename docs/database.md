@@ -123,6 +123,11 @@ erDiagram
 | `audit_logs` | `id` uuid PK, `admin_user_id` FK nullable, `action`, `entity_type`, `entity_id`, `old_value` jsonb, `new_value` jsonb, `reason` nullable, `ip`, `user_agent`, `created_at` (indexed) |
 | `system_settings` | `key` pk, `value` jsonb, `updated_by`, `updated_at` |
 
+### Analytics (§56, migration `0003`)
+| Table | Key columns |
+|---|---|
+| `analytics_events` | `id` uuid PK, `event_type` text (indexed with `created_at desc`), `order_id` FK nullable, `customer_id` FK nullable, `session_id` text nullable, `metadata` jsonb, `created_at`. Service-role only — no anon/authenticated RLS policy. |
+
 ## 3. Enums (canonical)
 
 ```text

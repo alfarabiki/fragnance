@@ -11,6 +11,7 @@ import {
   type CartItem,
   type CartItemConfig,
 } from "@/lib/cart";
+import { track } from "@/lib/analytics";
 
 interface CartContextValue {
   items: CartItem[];
@@ -37,7 +38,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       items,
       subtotal: cartSubtotal(items),
       count: items.reduce((n, i) => n + i.quantity, 0),
-      addItem: (config) => commit(upsertItem(items, config)),
+      addItem: (config) => {
+        commit(upsertItem(items, config));
+        track("add_to_cart", { fragranceId: config.fragranceId, volumeMl: config.volumeMl });
+      },
       increment: (itemId) => commit(setQuantity(items, itemId, (items.find((i) => i.itemId === itemId)?.quantity ?? 1) + 1)),
       decrement: (itemId) => commit(setQuantity(items, itemId, (items.find((i) => i.itemId === itemId)?.quantity ?? 1) - 1)),
       remove: (itemId) => commit(removeItem(items, itemId)),

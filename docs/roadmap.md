@@ -79,13 +79,25 @@ Scale features — only after P0+P1 are stable and orders are flowing.
 
 ## 4. Current Status
 
+_Last verified: 2026-09-02 against `git log` + `atlase/e2e/tests/`._
+
 | Phase | Status | Notes |
 |-------|--------|-------|
 | Phase 0 — System Design | ✅ Complete | Architecture docs, schema, design tokens finalized |
-| Phase 1 — Foundation | ⬜ Not started | Next.js project scaffolding, Tailwind, layout components |
-| Phase 2+ | ⬜ Not started | Blocked by Phase 1 |
+| Phase 1 — Foundation | ✅ Complete | Next.js 15 App Router (web+admin), Tailwind v4, `@atlase/ui` design tokens, `@atlase/domain`, `@atlase/types` |
+| Phase 2 — Catalog | ✅ Complete | `@atlase/pricing` engine, catalog seed data, product listing/detail. Per-product SEO metadata (title/description/canonical/OG) added 2026-09-02 — was previously missing entirely (§58) |
+| Phase 3 — Customization Engine | ✅ Complete | `/buat-parfum` 5-step builder, live price preview |
+| Phase 4 — Pricing Engine | ✅ Complete | Server-authoritative pricing via `@atlase/pricing`, volume tiers |
+| Phase 5 — Cart + Order | ✅ Complete | Cart drawer, checkout stepper (Pesanan→Alamat→Cara Pesan), order persistence API. *(2026-09-02: fixed three bugs found while wiring this up — (1) the checkout page never actually called this API, so address/customer data was discarded client-side; (2) `generateOrderNumber` used a browser-only `localStorage` counter that threw when called server-side; (3) `order_items`/`order_customizations` inserted the static catalog string ids (e.g. `"b50-s"`) directly into `bottle_id`/`packaging_id`/`fragrance_id`, which are `uuid` FK columns — every real insert would have failed with an invalid-UUID error. Fixed by resolving catalog slugs to DB row ids before insert.)* Consent records (`customer_consents`: `DATA_PROCESSING` always, `WHATSAPP` when that's the channel) are now written at order creation — `MARKETING` is intentionally never auto-granted (§57), pending an explicit opt-in checkbox the checkout form doesn't collect yet. |
+| Phase 6 — WhatsApp | ✅ Complete | `wa.me` handoff with structured §6 message using real customer/address data, E2E-covered (`full-whatsapp.spec.ts`). *(2026-09-02: fixed — message previously used a hardcoded fake name/phone and empty address.)* |
+| Phase 7 — Midtrans QRIS | 🟡 Partial | Backend transaction creation + webhook signature verification (idempotent) work. Payment page now calls the real API and polls server-verified status instead of a client-side 8s fake-success timer *(2026-09-02 fix)* — but this only activates when Supabase/Midtrans env vars are configured; untested against real sandbox credentials end-to-end |
+| Phase 8 — Admin | ✅ Complete | Supabase Auth login, RBAC shell (14 modules), pricing simulator, orders, inventory, promotions, analytics — wired to real Supabase, not mocked |
+| Phase 9 — Inventory | 🟡 Partial | Stock reservation on order creation and SALE/CANCELLATION conversion on webhook payment confirmation/expiry now wired (`apps/web/lib/inventory.ts`, 2026-09-02). Still missing: out-of-stock auto-disable on the storefront, admin UI verified against real movement rows |
+| Phase 10 — Analytics | 🟡 Partial | Funnel events now tracked (2026-09-02): `add_to_cart`, `checkout_started`, `whatsapp_clicked` client-side; `order_created`, `payment_started`, `payment_success`, `payment_failed` server-side. New `analytics_events` table (migration `0003`). Still missing: `landing_page_view`/`product_view`/`customization_*` page-view events, admin dashboard wired to read this table |
+| Phase 11 — Security Hardening | 🟡 Partial | In-memory rate limit + origin check on `/api/orders`/`/api/payments`. CSP + security headers on both apps. Sentry SDK scaffolded (no-op until DSN set). Order creation is idempotent (client-supplied key). Still missing: shared (multi-instance) rate limiting via Redis |
+| Phase 12 — Performance + Production | ⬜ Not started | No Vercel project linked (`.vercel/` absent), no Sentry, no Cloudflare — all documented in `infrastructure.md` as target state only |
 
-**Next action:** Begin Phase 1 — scaffold Next.js project with Tailwind, implement layout shell (header, footer, nav), establish responsive grid and dark theme.
+**Next action:** Verify Phase 9/10 end-to-end (inventory movements, analytics events actually recording), then start Phase 11 (rate limiting + CSRF) before any production traffic.
 
 ---
 

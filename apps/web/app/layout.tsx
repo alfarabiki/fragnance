@@ -16,6 +16,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://atlase.id"),
   title: "ATLASE — Premium, Made Personal",
   description:
     "Parfum premium yang bisa kamu sesuaikan dengan aroma dan budget kamu. Mulai dari Rp29.000.",

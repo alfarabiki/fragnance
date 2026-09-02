@@ -4,7 +4,8 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button, PriceDisplay, Container } from "@atlase/ui";
 import { useCart } from "@/components/cart/CartProvider";
-import { generateOrderNumber } from "@/lib/order";
+import { saveOrderSession } from "@/lib/order-session";
+import { track } from "@/lib/analytics";
 import type { OrderAddress } from "@/lib/whatsapp";
 
 type Step = "pesanan" | "alamat" | "cara";
@@ -15,7 +16,9 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const initialChannel = searchParams.get("channel");
   const [step, setStep] = useState<Step>("pesanan");
-  const [orderNumber] = useState(() => generateOrderNumber());
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [form, setForm] = useState<OrderAddress>({
     recipientName: "",
@@ -29,6 +32,7 @@ function CheckoutContent() {
   });
 
   useEffect(() => {
+    track("checkout_started");
     if (initialChannel === "whatsapp" && step === "alamat") {
       setStep("cara");
     }
@@ -68,6 +72,60 @@ function CheckoutContent() {
 
   const update = (field: keyof OrderAddress) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
+
+  async function submitOrder(channel: "WHATSAPP" | "DIRECT_PAYMENT") {
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idempotencyKey,
+          channel,
+          customer: { name: form.recipientName, phone: form.phone },
+          address: {
+            recipientName: form.recipientName,
+            phone: form.phone,
+            provinsi: form.province,
+            kota: form.city,
+            kecamatan: form.district,
+            postalCode: form.postalCode,
+            fullAddress: form.fullAddress,
+            note: form.note,
+          },
+          items: items.map((i) => ({
+            fragranceId: i.fragranceId,
+            volumeMl: i.volumeMl,
+            fragranceMl: i.fragranceMl,
+            bottleId: i.bottleId,
+            packagingId: i.packagingId,
+            quantity: i.quantity,
+          })),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.order) {
+        setSubmitError(data?.error?.message || "Pesanan belum bisa dibuat. Silakan coba lagi.");
+        return;
+      }
+      saveOrderSession({
+        orderId: data.order.orderId ?? null,
+        orderNumber: data.order.orderNumber,
+        persisted: data.order.persisted,
+        customer: { name: form.recipientName, phone: form.phone },
+        address: form,
+        total: data.order.total,
+      });
+      router.push(
+        `/payment?channel=${channel === "WHATSAPP" ? "whatsapp" : "qris"}&order=${encodeURIComponent(data.order.orderNumber)}`,
+      );
+    } catch {
+      setSubmitError("Pesanan belum bisa dibuat. Periksa koneksi internet dan coba lagi.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-ivory py-10 text-black">
@@ -187,12 +245,9 @@ function CheckoutContent() {
             <div className="mt-6 grid gap-4">
               <button
                 type="button"
-                onClick={() =>
-                  router.push(
-                    `/payment?channel=whatsapp&order=${encodeURIComponent(orderNumber)}`,
-                  )
-                }
-                className="rounded-lg border border-ivory-200 bg-white p-6 text-left transition hover:border-emerald"
+                disabled={submitting}
+                onClick={() => submitOrder("WHATSAPP")}
+                className="rounded-lg border border-ivory-200 bg-white p-6 text-left transition hover:border-emerald disabled:opacity-50"
               >
                 <span className="block text-heading-2">Pesan via WhatsApp</span>
                 <span className="block text-caption text-muted-gray">
@@ -201,12 +256,9 @@ function CheckoutContent() {
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  router.push(
-                    `/payment?channel=qris&order=${encodeURIComponent(orderNumber)}`,
-                  )
-                }
-                className="rounded-lg border border-ivory-200 bg-white p-6 text-left transition hover:border-emerald"
+                disabled={submitting}
+                onClick={() => submitOrder("DIRECT_PAYMENT")}
+                className="rounded-lg border border-ivory-200 bg-white p-6 text-left transition hover:border-emerald disabled:opacity-50"
               >
                 <span className="block text-heading-2">Bayar dengan QRIS</span>
                 <span className="block text-caption text-muted-gray">
@@ -214,7 +266,9 @@ function CheckoutContent() {
                 </span>
               </button>
             </div>
-            <Button intent="ghost" size="lg" className="mt-6" onClick={() => setStep("alamat")}>
+            {submitError ? <p className="mt-3 text-caption text-error">{submitError}</p> : null}
+            {submitting ? <p className="mt-3 text-caption text-muted-gray">Membuat pesanan...</p> : null}
+            <Button intent="ghost" size="lg" className="mt-6" disabled={submitting} onClick={() => setStep("alamat")}>
               Kembali
             </Button>
           </section>

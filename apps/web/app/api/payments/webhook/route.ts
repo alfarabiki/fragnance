@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabase } from "@supabase/supabase-js";
 import { verifyMidtransSignature } from "@/lib/midtrans";
+import { convertReservation } from "@/lib/inventory";
+import { trackServer } from "@/lib/analytics-server";
 
 // Midtrans notification webhook.
 //  1. receive notification
@@ -85,6 +87,11 @@ export async function POST(req: Request) {
           to_status: "PAID",
           note: "Pembayaran dikonfirmasi webhook",
         });
+        await convertReservation(db, order.id, "SALE");
+        await trackServer(db, "payment_success", { orderId: order.id, metadata: { transactionStatus } });
+      } else if (isExpired) {
+        await convertReservation(db, order.id, "CANCELLATION");
+        await trackServer(db, "payment_failed", { orderId: order.id, metadata: { transactionStatus } });
       }
     }
 

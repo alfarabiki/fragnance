@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabase } from "@supabase/supabase-js";
+import { rateLimit, clientIp, isCrossOrigin } from "@/lib/security";
+import { trackServer } from "@/lib/analytics-server";
 
 // Create a Midtrans QRIS transaction for an order, server-side only.
 // Server key lives ONLY on the backend (never exposed to client).
@@ -10,6 +12,13 @@ const BASE = IS_SANDBOX ? "https://app.sandbox.midtrans.com" : "https://app.midt
 
 export async function POST(req: Request) {
   try {
+    if (isCrossOrigin(req)) {
+      return NextResponse.json({ error: { message: "Permintaan ditolak." } }, { status: 403 });
+    }
+    if (!rateLimit(`payments:${clientIp(req)}`, { max: 10, windowMs: 60_000 })) {
+      return NextResponse.json({ error: { message: "Terlalu banyak percobaan. Coba lagi sebentar." } }, { status: 429 });
+    }
+
     const body = (await req.json()) as { orderId?: string; orderNumber?: string; amount?: number };
 
     if (!body?.orderNumber || typeof body.amount !== "number") {
@@ -35,6 +44,7 @@ export async function POST(req: Request) {
         status: "PENDING",
         amount: body.amount,
       });
+      await trackServer(db, "payment_started", { orderId: body.orderId, metadata: { amount: body.amount } });
     }
 
     const auth = Buffer.from(SERVER_KEY + ":").toString("base64");

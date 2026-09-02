@@ -27,15 +27,11 @@ test("full QRIS journey: build → cart → address → QRIS → paid → succes
   await page.getByRole("button", { name: /Bayar dengan QRIS/i }).click();
   await page.waitForURL("**/payment?channel=qris**");
 
-  // Payment waiting screen with QRIS placeholder
+  // Payment waiting screen. This test env has no Supabase/Midtrans backend
+  // configured, so the page honestly shows the simulation fallback instead
+  // of faking a "paid" state (§7 — payment status is only ever confirmed via
+  // the Midtrans webhook, never a client-side timer). The paid→success path
+  // needs real sandbox credentials to exercise end-to-end.
   await expect(page.getByText("Menunggu Pembayaran").first()).toBeVisible();
-  await expect(page.getByText("QRIS Placeholder")).toBeVisible();
-
-  // Polled success after 8s
-  await expect(page.getByText("Order Berhasil!").first()).toBeVisible({ timeout: 15000 });
-
-  // Go to success screen
-  await page.getByRole("button", { name: /Lihat Detail Pesanan/i }).click();
-  await page.waitForURL("**/order-sukses**");
-  await expect(page.getByText("Terima kasih atas pesananmu!").first()).toBeVisible();
+  await expect(page.getByText(/Mode simulasi/i)).toBeVisible();
 });
