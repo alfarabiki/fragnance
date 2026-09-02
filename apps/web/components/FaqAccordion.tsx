@@ -18,21 +18,18 @@ export function FaqAccordion() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="border-t border-black-400">
       {FAQ_ITEMS.map((item, idx) => {
         const isOpen = openIdx === idx;
         return (
-          <div
-            key={item.q}
-            className="overflow-hidden rounded-lg border border-black-400 bg-black-600"
-          >
+          <div key={item.q} className="border-b border-black-400">
             <button
               type="button"
               aria-expanded={isOpen}
               onClick={() => setOpenIdx(isOpen ? null : idx)}
-              className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left"
+              className="flex w-full items-center justify-between gap-4 py-5 text-left"
             >
-              <span className="text-heading-2 text-ivory">{item.q}</span>
+              <span className="text-body-lg text-ivory">{item.q}</span>
               <span
                 className={cn(
                   "shrink-0 text-emerald transition-transform duration-150",
@@ -50,7 +47,7 @@ export function FaqAccordion() {
               )}
             >
               <div className="overflow-hidden">
-                <p className="px-4 pb-4 text-body text-muted-gray">{item.a}</p>
+                <p className="pb-5 text-body text-muted-gray">{item.a}</p>
               </div>
             </div>
           </div>
