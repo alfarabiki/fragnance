@@ -11,4 +11,7 @@ coverage
 .vercel
 supabase/.temp
 database/.temp
+test-results/
+playwright-report/
+test-output.txt
 .superpowers/
