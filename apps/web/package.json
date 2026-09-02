@@ -7,15 +7,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-"typecheck": "tsc --noEmit -p .",
+    "typecheck": "tsc --noEmit -p .",
     "test": "vitest run"
   },
-"dependencies": {
-    "@atlase/ui": "workspace:*",
-    "@atlase/domain": "workspace:*",
+  "dependencies": {
     "@atlase/config": "workspace:*",
+    "@atlase/domain": "workspace:*",
     "@atlase/pricing": "workspace:*",
     "@atlase/types": "workspace:*",
+    "@atlase/ui": "workspace:*",
+    "@supabase/ssr": "0.12.5",
+    "@supabase/supabase-js": "2.112.4",
     "next": "15.1.6",
     "react": "19.2.8",
     "react-dom": "19.2.8"
