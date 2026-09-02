@@ -97,6 +97,38 @@ export default function HomePage() {
               </StaggerItem>
             ))}
           </StaggerGroup>
+          <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-2" stagger={0.12}>
+            <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
+              <Image
+                src="/images/showcase-fresh.jpg"
+                alt="Aroma segar dengan bunga dan madu"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-8">
+                <Badge variant="info">Top Note</Badge>
+                <h3 className="text-heading-1 mt-3">Aroma Segar</h3>
+                <p className="text-body mt-2 text-muted-gray">Untuk siang yang aktif.</p>
+              </div>
+            </StaggerItem>
+            <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
+              <Image
+                src="/images/showcase-warm.jpg"
+                alt="Aroma hangat dengan botol emas"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-8">
+                <Badge variant="success">Base Note</Badge>
+                <h3 className="text-heading-1 mt-3">Aroma Hangat</h3>
+                <p className="text-body mt-2 text-muted-gray">Untuk malam yang elegan.</p>
+              </div>
+            </StaggerItem>
+          </StaggerGroup>
         </Container>
       </section>
 
@@ -167,48 +199,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* 8. Premium Showcase */}
-      <section className="py-24">
-        <Container>
-          <Reveal>
-            <SectionHeading eyebrow="Showcase" title="Ragam Wangi Mewah" />
-          </Reveal>
-          <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-2" stagger={0.12}>
-            <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
-              <Image
-                src="/images/showcase-fresh.jpg"
-                alt="Aroma segar dengan bunga dan madu"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-8">
-                <Badge variant="info">Top Note</Badge>
-                <h3 className="text-heading-1 mt-3">Aroma Segar</h3>
-                <p className="text-body mt-2 text-muted-gray">Untuk siang yang aktif.</p>
-              </div>
-            </StaggerItem>
-            <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
-              <Image
-                src="/images/showcase-warm.jpg"
-                alt="Aroma hangat dengan botol emas"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-8">
-                <Badge variant="success">Base Note</Badge>
-                <h3 className="text-heading-1 mt-3">Aroma Hangat</h3>
-                <p className="text-body mt-2 text-muted-gray">Untuk malam yang elegan.</p>
-              </div>
-            </StaggerItem>
-          </StaggerGroup>
-        </Container>
-      </section>
-
-      {/* 9. Testimonials */}
+      {/* 8. Testimonials */}
       <section className="bg-black-600 py-24">
         <Container>
           <Reveal>
@@ -231,7 +222,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* 10. FAQ */}
+      {/* 9. FAQ */}
       <section id="faq" className="py-24">
         <Container className="max-w-3xl">
           <Reveal>
@@ -243,7 +234,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* 11. WhatsApp CTA */}
+      {/* 10. WhatsApp CTA */}
       <section className="py-24 text-center">
         <Container>
           <Reveal>
@@ -262,7 +253,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* 12. Footer */}
+      {/* 11. Footer */}
       <footer className="border-t border-black-400 py-12">
         <Container>
           <Stack className="gap-4">
