@@ -10,6 +10,9 @@
     "test": "turbo test",
     "test:e2e": "playwright test --config e2e/playwright.config.ts",
     "test:e2e:install": "playwright install",
+    "db:link": "supabase link --project-ref ecztdymcmzcaffdwhjur",
+    "db:push": "supabase db push",
+    "db:seed": "supabase db query -f database/seeds/0001_seed.sql",
     "db:dev": "supabase start",
     "db:migrate": "cd database && supabase db push",
     "db:types": "cd database && supabase gen types typescript --local > ../packages/types/src/generated/database.ts"
