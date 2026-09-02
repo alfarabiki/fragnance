@@ -1,43 +1,76 @@
-import { Button, Container, Stack } from "@atlase/ui";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createBrowserSupabase } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AdminLogin() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const supabase = createBrowserSupabase();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) {
+      setError("Email atau kata sandi salah. Silakan coba lagi.");
+      return;
+    }
+    router.push("/");
+    router.refresh();
+  }
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-black px-4">
-      <Container className="max-w-[480px]">
-        <div className="rounded-lg border border-black-600 bg-black-600 p-8">
-          <Stack className="gap-6">
-            <div>
-              <h1 className="text-display-3 font-semibold text-ivory">
-                Masuk ke Admin ATLASE
-              </h1>
-              <p className="text-caption text-muted-gray">
-                Gunakan akun admin untuk mengelola platform.
-              </p>
-            </div>
-            <label className="flex flex-col gap-1">
-              <span className="text-label text-ivory">Email</span>
-              <input
+    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
+      <Card className="w-full max-w-sm shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl">Masuk ke Admin ATLASE</CardTitle>
+          <CardDescription>Gunakan akun admin untuk mengelola platform.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
                 type="email"
-                name="email"
-                className="rounded border border-black-400 bg-black px-3 py-2 text-body text-ivory focus:ring-2 focus:ring-emerald"
                 placeholder="admin@atlase.id"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-label text-ivory">Kata Sandi</span>
-              <input
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Kata Sandi</Label>
+              <Input
+                id="password"
                 type="password"
-                name="password"
-                className="rounded border border-black-400 bg-black px-3 py-2 text-body text-ivory focus:ring-2 focus:ring-emerald"
-                placeholder="• • • • • • • •"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
-            </label>
-            <Button intent="primary" size="lg">
-              Masuk
+            </div>
+            {error ? (
+              <p className="text-sm text-destructive" role="alert">
+                {error}
+              </p>
+            ) : null}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Masuk..." : "Masuk"}
             </Button>
-          </Stack>
-        </div>
-      </Container>
-    </main>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
