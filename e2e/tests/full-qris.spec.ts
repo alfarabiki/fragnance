@@ -19,11 +19,11 @@ test("full QRIS journey: build → cart → address → QRIS → paid → succes
   await expect(page.getByText("Alamat Pengiriman").first()).toBeVisible();
   await page.fill('input[placeholder="Nama lengkap"]', "Siti Rahma");
   await page.fill('input[placeholder="08xx"]', "081234567890");
-  await page.fill('input[placeholder="e.g. DKI Jakarta"]', "DKI Jakarta");
-  await page.fill('input[placeholder="e.g. Jakarta Selatan"]', "Jakarta Selatan");
-  await page.fill('input[placeholder="e.g. Kebayoran Baru"]', "Kebayoran Baru");
   await page.fill('input[placeholder="5 digit"]', "12110");
-  await page.fill('textarea[placeholder^="Nama jalan"]', "Jl. Senopati No. 88");
+  await page.fill(
+    'textarea[placeholder^="Nama jalan"]',
+    "Jl. Senopati No. 88, Kebayoran Baru, Jakarta Selatan, DKI Jakarta",
+  );
   await page.getByRole("button", { name: /Lanjut Cara Pesan/i }).click();
 
   // Choose QRIS

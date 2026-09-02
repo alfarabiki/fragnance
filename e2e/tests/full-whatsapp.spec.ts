@@ -27,11 +27,11 @@ test("full WhatsApp journey: build → cart → address → whatsapp handoff", a
   // Fill the form
   await page.fill('input[placeholder="Nama lengkap"]', "Budi Santoso");
   await page.fill('input[placeholder="08xx"]', "081234567890");
-  await page.fill('input[placeholder="e.g. DKI Jakarta"]', "DKI Jakarta");
-  await page.fill('input[placeholder="e.g. Jakarta Selatan"]', "Jakarta Selatan");
-  await page.fill('input[placeholder="e.g. Kebayoran Baru"]', "Kebayoran Baru");
   await page.fill('input[placeholder="5 digit"]', "12110");
-  await page.fill('textarea[placeholder^="Nama jalan"]', "Jl. Wolter Monginsidi No. 21");
+  await page.fill(
+    'textarea[placeholder^="Nama jalan"]',
+    "Jl. Wolter Monginsidi No. 21, Kebayoran Baru, Jakarta Selatan, DKI Jakarta",
+  );
 
   await page.getByRole("button", { name: /Lanjut Cara Pesan/i }).click();
 
