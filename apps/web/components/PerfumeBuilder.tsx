@@ -246,7 +246,7 @@ export function PerfumeBuilder({
                   selected={packagingId === p.id}
                   onClick={() => setPackagingId(p.id)}
                   title={p.name}
-                  description="Terinspirasi keindahan persembahan"
+                  description={p.description}
                 />
               ))}
             </div>

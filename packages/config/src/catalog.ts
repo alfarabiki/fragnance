@@ -28,6 +28,7 @@ export interface CatalogPackaging {
   id: string;
   slug: string;
   name: string;
+  description: string;
   costPrice: number;
   sellPrice: number;
   isMandatory: boolean;
@@ -144,9 +145,9 @@ export const bottles: CatalogBottle[] = [
 ];
 
 export const packaging: CatalogPackaging[] = [
-  { id: "pkg-standard", slug: "standard", name: "Standard", costPrice: 2000, sellPrice: 5000, isMandatory: false, isActive: true },
-  { id: "pkg-premium", slug: "premium-box", name: "Premium Box", costPrice: 6000, sellPrice: 15000, isMandatory: false, isActive: true },
-  { id: "pkg-gift", slug: "gift", name: "Gift", costPrice: 9000, sellPrice: 25000, isMandatory: false, isActive: true },
+  { id: "pkg-standard", slug: "standard", name: "Standard", description: "Simpel, rapi, langsung kirim", costPrice: 2000, sellPrice: 5000, isMandatory: false, isActive: true },
+  { id: "pkg-premium", slug: "premium-box", name: "Premium Box", description: "Kotak eksklusif, kesan lebih mewah", costPrice: 6000, sellPrice: 15000, isMandatory: false, isActive: true },
+  { id: "pkg-gift", slug: "gift", name: "Gift", description: "Siap kasih ke orang tersayang", costPrice: 9000, sellPrice: 25000, isMandatory: false, isActive: true },
 ];
 
 export function getFragranceById(id: string): CatalogFragrance | undefined {
