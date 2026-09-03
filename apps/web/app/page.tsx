@@ -39,7 +39,7 @@ export default function HomePage() {
       <SiteNav />
 
       {/* 2. Hero */}
-      <section className="relative overflow-hidden bg-black py-32 text-ivory">
+      <section className="relative flex min-h-[90vh] items-center overflow-hidden bg-black py-32 text-ivory">
         <ScentField />
         <Container className="relative">
           <StaggerGroup mode="mount" className="flex flex-col items-start gap-8" stagger={0.12}>
