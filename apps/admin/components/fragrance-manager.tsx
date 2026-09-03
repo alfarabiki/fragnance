@@ -27,9 +27,12 @@ function formatRupiah(n: number): string {
 }
 
 export function FragranceManager({ initial }: { initial: FragranceRow[] }) {
+  const [fragrances, setFragrances] = useState(initial);
+
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {initial.map((f) => (
+      <NewFragranceCard onCreated={(f) => setFragrances((rows) => [f, ...rows])} />
+      {fragrances.map((f) => (
         <FragranceCard key={f.id} fragrance={f} />
       ))}
     </div>
@@ -195,6 +198,93 @@ function FragranceCard({ fragrance }: { fragrance: FragranceRow }) {
             {saving ? "Menyimpan..." : dirty ? "Simpan Perubahan" : "Tersimpan"}
           </Button>
           {message ? <span className="text-xs text-muted-foreground">{message}</span> : null}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function NewFragranceCard({ onCreated }: { onCreated: (fragrance: FragranceRow) => void }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function create() {
+    if (!name.trim()) {
+      setError("Nama aroma wajib diisi.");
+      return;
+    }
+    setCreating(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/fragrances", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, category: category || undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data?.error?.message || "Gagal membuat aroma.");
+        return;
+      }
+      onCreated(data.fragrance);
+      setName("");
+      setCategory("");
+      setOpen(false);
+    } catch {
+      setError("Gagal membuat aroma. Periksa koneksi.");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex min-h-[280px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+      >
+        <span className="text-2xl leading-none">+</span>
+        <span className="text-sm font-medium">Tambah Aroma Baru</span>
+      </button>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Aroma Baru</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Field label="Nama">
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="mis. Amber Musk" autoFocus />
+        </Field>
+        <Field label="Kategori">
+          <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="mis. Premium" />
+        </Field>
+        <p className="text-xs text-muted-foreground">
+          Harga, deskripsi, foto, dan video bisa diatur setelah aroma dibuat.
+        </p>
+        <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
+          <div className="flex gap-2">
+            <Button onClick={create} disabled={creating}>
+              {creating ? "Membuat..." : "Buat"}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setOpen(false);
+                setError(null);
+              }}
+              disabled={creating}
+            >
+              Batal
+            </Button>
+          </div>
+          {error ? <span className="text-xs text-destructive">{error}</span> : null}
         </div>
       </CardContent>
     </Card>

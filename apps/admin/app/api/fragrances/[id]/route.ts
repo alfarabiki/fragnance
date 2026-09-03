@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabase } from "@supabase/supabase-js";
+import { getOrCreateActivePricingVersion } from "@/lib/pricing-version";
 
 // Admin-only writes to the catalog. Middleware already gates every route
 // behind a logged-in Supabase session (see apps/admin/middleware.ts); this
@@ -55,30 +56,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   // ponytail: no draft/publish UI yet; add when multiple staged price
   // changes actually need to be reviewed before going live.
   if (body.pricePerMl !== undefined || body.costPerMl !== undefined) {
-    let { data: version } = await client
-      .from("pricing_versions")
-      .select("id")
-      .eq("status", "ACTIVE")
-      .limit(1)
-      .maybeSingle();
-
-    if (!version) {
-      const { data: created, error: versionErr } = await client
-        .from("pricing_versions")
-        .insert({ label: "v1.0", status: "ACTIVE", published_at: new Date().toISOString() })
-        .select("id")
-        .single();
-      if (versionErr) {
-        return NextResponse.json({ error: { message: versionErr.message } }, { status: 500 });
-      }
-      version = created;
+    let versionId: string;
+    try {
+      versionId = await getOrCreateActivePricingVersion(client);
+    } catch (e) {
+      return NextResponse.json({ error: { message: (e as Error).message } }, { status: 500 });
     }
 
     const { data: existingRow } = await client
       .from("fragrance_pricing")
       .select("id, cost_per_ml, price_per_ml")
       .eq("fragrance_id", id)
-      .eq("version_id", version!.id)
+      .eq("version_id", versionId)
       .maybeSingle();
 
     const costPerMl = body.costPerMl ?? existingRow?.cost_per_ml ?? 0;
@@ -93,7 +82,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     } else {
       const { error } = await client.from("fragrance_pricing").insert({
         fragrance_id: id,
-        version_id: version!.id,
+        version_id: versionId,
         cost_per_ml: costPerMl,
         price_per_ml: pricePerMl,
         active: true,
