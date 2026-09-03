@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface FragranceRow {
   id: string;
@@ -21,9 +22,13 @@ interface FragranceRow {
   video_url?: string | null;
 }
 
+function formatRupiah(n: number): string {
+  return `Rp${n.toLocaleString("id-ID")}`;
+}
+
 export function FragranceManager({ initial }: { initial: FragranceRow[] }) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {initial.map((f) => (
         <FragranceCard key={f.id} fragrance={f} />
       ))}
@@ -47,6 +52,12 @@ function FragranceCard({ fragrance }: { fragrance: FragranceRow }) {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<"image" | "video" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
+
+  function updateForm<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
+    setForm((f) => ({ ...f, [key]: value }));
+    setDirty(true);
+  }
 
   async function save() {
     setSaving(true);
@@ -58,7 +69,12 @@ function FragranceCard({ fragrance }: { fragrance: FragranceRow }) {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      setMessage(res.ok ? "Tersimpan." : data?.error?.message || "Gagal menyimpan.");
+      if (res.ok) {
+        setMessage("Tersimpan.");
+        setDirty(false);
+      } else {
+        setMessage(data?.error?.message || "Gagal menyimpan.");
+      }
     } catch {
       setMessage("Gagal menyimpan. Periksa koneksi.");
     } finally {
@@ -89,93 +105,94 @@ function FragranceCard({ fragrance }: { fragrance: FragranceRow }) {
     }
   }
 
+  const margin = form.pricePerMl - form.costPerMl;
+  const marginPct = form.pricePerMl > 0 ? Math.round((margin / form.pricePerMl) * 100) : 0;
+
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <MediaPreview
+        imageUrl={imageUrl}
+        videoUrl={videoUrl}
+        uploadingImage={uploading === "image"}
+        uploadingVideo={uploading === "video"}
+        onImageFile={(file) => uploadFile("image", file)}
+        onVideoFile={(file) => uploadFile("video", file)}
+      />
+
       <CardHeader className="flex flex-row items-center justify-between gap-2">
         <CardTitle className="text-base">{fragrance.name}</CardTitle>
         <Badge variant={form.isActive ? "default" : "secondary"}>
           {form.isActive ? "Aktif" : "Nonaktif"}
         </Badge>
       </CardHeader>
+
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <Field label="Nama">
-            <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+            <Input value={form.name} onChange={(e) => updateForm("name", e.target.value)} />
           </Field>
           <Field label="Kategori">
-            <Input value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} />
+            <Input value={form.category} onChange={(e) => updateForm("category", e.target.value)} />
           </Field>
         </div>
 
         <Field label="Deskripsi">
           <textarea
             value={form.description}
-            onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+            onChange={(e) => updateForm("description", e.target.value)}
             rows={2}
             className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
           />
         </Field>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Cost/ml (Rp)">
-            <Input
-              type="number"
-              value={form.costPerMl}
-              onChange={(e) => setForm((f) => ({ ...f, costPerMl: Number(e.target.value) }))}
-            />
-          </Field>
-          <Field label="Jual/ml (Rp)">
-            <Input
-              type="number"
-              value={form.pricePerMl}
-              onChange={(e) => setForm((f) => ({ ...f, pricePerMl: Number(e.target.value) }))}
-            />
-          </Field>
-          <Field label="Min ml">
-            <Input
-              type="number"
-              value={form.minMl}
-              onChange={(e) => setForm((f) => ({ ...f, minMl: Number(e.target.value) }))}
-            />
-          </Field>
-          <Field label="Max ml">
-            <Input
-              type="number"
-              value={form.maxMl}
-              onChange={(e) => setForm((f) => ({ ...f, maxMl: Number(e.target.value) }))}
-            />
-          </Field>
+        <div className="rounded-lg border border-border bg-muted/30 p-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Cost/ml (Rp)">
+              <Input
+                type="number"
+                value={form.costPerMl}
+                onChange={(e) => updateForm("costPerMl", Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Jual/ml (Rp)">
+              <Input
+                type="number"
+                value={form.pricePerMl}
+                onChange={(e) => updateForm("pricePerMl", Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Min ml">
+              <Input
+                type="number"
+                value={form.minMl}
+                onChange={(e) => updateForm("minMl", Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Max ml">
+              <Input
+                type="number"
+                value={form.maxMl}
+                onChange={(e) => updateForm("maxMl", Number(e.target.value))}
+              />
+            </Field>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Margin {formatRupiah(margin)}/ml ({marginPct}%)
+          </p>
         </div>
 
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
             checked={form.isActive}
-            onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
+            onChange={(e) => updateForm("isActive", e.target.checked)}
           />
           Aktif (tampil di storefront)
         </label>
 
-        <div className="grid grid-cols-2 gap-3">
-          <MediaField
-            label="Foto"
-            url={imageUrl}
-            uploading={uploading === "image"}
-            accept="image/jpeg,image/png,image/webp"
-            onFile={(file) => uploadFile("image", file)}
-          />
-          <MediaField
-            label="Video"
-            url={videoUrl}
-            uploading={uploading === "video"}
-            accept="video/mp4,video/webm"
-            onFile={(file) => uploadFile("video", file)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between gap-3 pt-2">
-          <Button onClick={save} disabled={saving}>
-            {saving ? "Menyimpan..." : "Simpan"}
+        <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
+          <Button onClick={save} disabled={saving || !dirty}>
+            {saving ? "Menyimpan..." : dirty ? "Simpan Perubahan" : "Tersimpan"}
           </Button>
           {message ? <span className="text-xs text-muted-foreground">{message}</span> : null}
         </div>
@@ -193,41 +210,111 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function MediaField({
-  label,
-  url,
-  uploading,
-  accept,
-  onFile,
+function MediaPreview({
+  imageUrl,
+  videoUrl,
+  uploadingImage,
+  uploadingVideo,
+  onImageFile,
+  onVideoFile,
 }: {
-  label: string;
-  url: string | null;
-  uploading: boolean;
-  accept: string;
-  onFile: (file: File) => void;
+  imageUrl: string | null;
+  videoUrl: string | null;
+  uploadingImage: boolean;
+  uploadingVideo: boolean;
+  onImageFile: (file: File) => void;
+  onVideoFile: (file: File) => void;
 }) {
   return (
-    <div className="space-y-1">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
-      {url ? (
-        <p className="truncate text-xs text-emerald-600" title={url}>
-          {url.split("/").pop()}
-        </p>
-      ) : (
-        <p className="text-xs text-muted-foreground">Belum ada.</p>
+    <div className="grid grid-cols-2 gap-px bg-border">
+      <Dropzone
+        label="Foto"
+        accept="image/jpeg,image/png,image/webp"
+        uploading={uploadingImage}
+        onFile={onImageFile}
+      >
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+        ) : null}
+      </Dropzone>
+      <Dropzone
+        label="Video"
+        accept="video/mp4,video/webm"
+        uploading={uploadingVideo}
+        onFile={onVideoFile}
+      >
+        {videoUrl ? (
+          <video src={videoUrl} className="h-full w-full object-cover" muted loop playsInline />
+        ) : null}
+      </Dropzone>
+    </div>
+  );
+}
+
+function Dropzone({
+  label,
+  accept,
+  uploading,
+  onFile,
+  children,
+}: {
+  label: string;
+  accept: string;
+  uploading: boolean;
+  onFile: (file: File) => void;
+  children: React.ReactNode;
+}) {
+  const [dragOver, setDragOver] = useState(false);
+  const hasMedia = Boolean(children);
+
+  return (
+    <label
+      className={cn(
+        "group relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden bg-muted text-center transition-colors",
+        dragOver && "bg-accent",
       )}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragOver(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file) onFile(file);
+      }}
+    >
+      {children}
+
+      <div
+        className={cn(
+          "absolute inset-0 flex flex-col items-center justify-center gap-1 bg-background/80 text-xs text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100",
+          !hasMedia && "opacity-100 bg-transparent",
+        )}
+      >
+        <span className="font-medium">{label}</span>
+        <span>{hasMedia ? "Ganti" : "Upload / drop"}</span>
+      </div>
+
+      {uploading ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/90 text-xs text-muted-foreground">
+          Mengupload...
+        </div>
+      ) : null}
+
       <input
         type="file"
         accept={accept}
         disabled={uploading}
+        className="sr-only"
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) onFile(file);
           e.target.value = "";
         }}
-        className="text-xs"
       />
-      {uploading ? <p className="text-xs text-muted-foreground">Mengupload...</p> : null}
-    </div>
+    </label>
   );
 }
