@@ -7,6 +7,8 @@ import {
   Droplets,
   Wallet,
   Warehouse,
+  FlaskConical,
+  Gift,
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,6 +26,8 @@ export const ADMIN_MODULES = [
   { key: "dashboard", label: "Dashboard", href: "/", icon: LayoutDashboard },
   { key: "orders", label: "Orders", href: "/orders", icon: Package },
   { key: "fragrances", label: "Fragrances", href: "/fragrances", icon: Droplets },
+  { key: "bottles", label: "Bottles", href: "/bottles", icon: FlaskConical },
+  { key: "packaging", label: "Packaging", href: "/packaging", icon: Gift },
   { key: "pricing", label: "Pricing", href: "/pricing", icon: Wallet },
   { key: "inventory", label: "Inventory", href: "/inventory", icon: Warehouse },
 ] as const;

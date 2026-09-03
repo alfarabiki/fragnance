@@ -88,6 +88,15 @@ export async function listFragrances(): Promise<Row[]> {
   }));
 }
 
+async function stockByItemId(db: Awaited<ReturnType<typeof adminClient>>, itemType: string): Promise<Map<string, number>> {
+  const { data } = await db
+    .from("inventory_items")
+    .select("item_id, current_stock")
+    .eq("item_type", itemType);
+  const rows = (data as unknown as Row[]) ?? [];
+  return new Map(rows.map((r) => [r.item_id as string, Number(r.current_stock)]));
+}
+
 export async function listBottles(): Promise<Row[]> {
   if (!configured()) {
     return bottles.map((b) => ({
@@ -97,12 +106,19 @@ export async function listBottles(): Promise<Row[]> {
       cost_price: b.costPrice,
       sell_price: b.sellPrice,
       is_active: b.isActive,
+      current_stock: 0,
     }));
   }
   const db = await adminClient();
-  const { data, error } = await db.from("bottles").select("*");
+  const [{ data, error }, stock] = await Promise.all([
+    db.from("bottles").select("*").order("volume_ml"),
+    stockByItemId(db, "BOTTLE"),
+  ]);
   if (error) return [];
-  return (data as unknown as Row[]) ?? [];
+  return ((data as unknown as Row[]) ?? []).map((b) => ({
+    ...b,
+    current_stock: stock.get(b.id as string) ?? 0,
+  }));
 }
 
 export async function listPackaging(): Promise<Row[]> {
@@ -114,10 +130,17 @@ export async function listPackaging(): Promise<Row[]> {
       sell_price: p.sellPrice,
       is_mandatory: p.isMandatory,
       is_active: p.isActive,
+      current_stock: 0,
     }));
   }
   const db = await adminClient();
-  const { data, error } = await db.from("packaging").select("*");
+  const [{ data, error }, stock] = await Promise.all([
+    db.from("packaging").select("*"),
+    stockByItemId(db, "PACKAGING"),
+  ]);
   if (error) return [];
-  return (data as unknown as Row[]) ?? [];
+  return ((data as unknown as Row[]) ?? []).map((p) => ({
+    ...p,
+    current_stock: stock.get(p.id as string) ?? 0,
+  }));
 }
