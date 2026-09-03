@@ -11,13 +11,7 @@ import {
   OptionCard,
 } from "@atlase/ui";
 import { calculate, PricingError } from "@atlase/pricing";
-import {
-  fragrances,
-  packaging,
-  volumePresets,
-  getBottlesByVolume,
-  alcoholSellPerMl,
-} from "@atlase/config";
+import type { LiveFragrance, LiveBottle, LivePackaging } from "@/lib/catalog";
 import { useCart } from "./cart/CartProvider";
 
 const STRENGTH_PRESETS = [
@@ -27,44 +21,57 @@ const STRENGTH_PRESETS = [
 ] as const;
 
 export function PerfumeBuilder({
+  fragrances,
+  bottles,
+  packaging,
+  volumePresets,
+  alcoholSellPerMl,
   initialSlug,
 }: {
+  fragrances: LiveFragrance[];
+  bottles: LiveBottle[];
+  packaging: LivePackaging[];
+  volumePresets: readonly number[];
+  alcoholSellPerMl: number;
   initialSlug?: string;
 }) {
   const [fragranceId, setFragranceId] = useState<string>(
     initialSlug
-      ? (fragrances.find((f) => f.slug === initialSlug)?.id ?? fragrances[0]!.id)
-      : fragrances[0]!.id,
+      ? (fragrances.find((f) => f.slug === initialSlug)?.id ?? fragrances[0]?.id ?? "")
+      : (fragrances[0]?.id ?? ""),
   );
   const [volumeMl, setVolumeMl] = useState<number>(50);
   const [strengthMl, setStrengthMl] = useState<number>(25);
   const [customStrength, setCustomStrength] = useState<boolean>(false);
-  const [bottleId, setBottleId] = useState<string>("b50-s");
-  const [packagingId, setPackagingId] = useState<string>("pkg-standard");
+  const [bottleId, setBottleId] = useState<string>(
+    () => bottles.find((b) => b.volumeMl === 50 && b.name.toLowerCase().includes("standard"))?.id ?? "",
+  );
+  const [packagingId, setPackagingId] = useState<string>(() => packaging.find((p) => p.slug === "standard")?.id ?? packaging[0]?.id ?? "");
 
   const fragrance = useMemo(
-    () => fragrances.find((f) => f.id === fragranceId)!,
-    [fragranceId],
+    () => fragrances.find((f) => f.id === fragranceId) ?? fragrances[0],
+    [fragrances, fragranceId],
   );
   const availableBottles = useMemo(
-    () => getBottlesByVolume(volumeMl),
-    [volumeMl],
+    () => bottles.filter((b) => b.volumeMl === volumeMl),
+    [bottles, volumeMl],
   );
   const selectedPackaging = useMemo(
-    () => packaging.find((p) => p.id === packagingId)!,
-    [packagingId],
+    () => packaging.find((p) => p.id === packagingId) ?? packaging[0],
+    [packaging, packagingId],
   );
 
   const effectiveBottle =
-    availableBottles.find((b) => b.id === bottleId) ?? availableBottles[0]!;
+    availableBottles.find((b) => b.id === bottleId) ?? availableBottles[0];
 
   const quote = useMemo(() => {
+    if (!fragrance || !effectiveBottle || !selectedPackaging) return null;
     try {
       const fragranceMlForCalc = Math.min(Math.max(strengthMl, fragrance.minMl), fragrance.maxMl);
       const alcoholMlForCalc = volumeMl - fragranceMlForCalc;
       if (alcoholMlForCalc < 0) return null;
       return calculate({
-        fragrance: { id: fragrance.id, name: fragrance.name, pricePerMl: fragrance.pricePerMl, minMl: fragrance.minMl, maxMl: fragrance.maxMl },
+        fragrance: { id: fragrance.id, name: fragrance.name, pricePerMl: fragrance.effectivePricePerMl, minMl: fragrance.minMl, maxMl: fragrance.maxMl },
         bottle: { id: effectiveBottle.id, name: effectiveBottle.name, volumeMl: effectiveBottle.volumeMl, price: effectiveBottle.sellPrice, active: effectiveBottle.isActive },
         packaging: { id: selectedPackaging.id, name: selectedPackaging.name, price: selectedPackaging.sellPrice, mandatory: selectedPackaging.isMandatory, active: selectedPackaging.isActive },
         alcohol: { pricePerMl: alcoholSellPerMl },
@@ -75,11 +82,31 @@ export function PerfumeBuilder({
       if (e instanceof PricingError) return null;
       throw e;
     }
-  }, [fragrance, strengthMl, volumeMl, effectiveBottle, selectedPackaging]);
+  }, [fragrance, strengthMl, volumeMl, effectiveBottle, selectedPackaging, alcoholSellPerMl]);
+
+  // Same quote at the fragrance's full (undiscounted) price, so the summary
+  // can show a struck-through "before" price when a discount is active.
+  const originalQuote = useMemo(() => {
+    if (!fragrance || !effectiveBottle || !selectedPackaging || !fragrance.discountPercent) return null;
+    try {
+      const fragranceMlForCalc = Math.min(Math.max(strengthMl, fragrance.minMl), fragrance.maxMl);
+      if (volumeMl - fragranceMlForCalc < 0) return null;
+      return calculate({
+        fragrance: { id: fragrance.id, name: fragrance.name, pricePerMl: fragrance.pricePerMl, minMl: fragrance.minMl, maxMl: fragrance.maxMl },
+        bottle: { id: effectiveBottle.id, name: effectiveBottle.name, volumeMl: effectiveBottle.volumeMl, price: effectiveBottle.sellPrice, active: effectiveBottle.isActive },
+        packaging: { id: selectedPackaging.id, name: selectedPackaging.name, price: selectedPackaging.sellPrice, mandatory: selectedPackaging.isMandatory, active: selectedPackaging.isActive },
+        alcohol: { pricePerMl: alcoholSellPerMl },
+        volumeMl,
+        fragranceMl: fragranceMlForCalc,
+      });
+    } catch {
+      return null;
+    }
+  }, [fragrance, strengthMl, volumeMl, effectiveBottle, selectedPackaging, alcoholSellPerMl]);
 
   const handleVolume = (vol: number) => {
     setVolumeMl(vol);
-    const firstBottle = getBottlesByVolume(vol)[0];
+    const firstBottle = bottles.find((b) => b.volumeMl === vol);
     if (firstBottle) setBottleId(firstBottle.id);
   };
 
@@ -88,12 +115,16 @@ export function PerfumeBuilder({
   const router = useRouter();
   const [added, setAdded] = useState(false);
 
+  const canOrder = Boolean(
+    quote && fragrance?.inStock && effectiveBottle?.inStock && selectedPackaging?.inStock,
+  );
+
   // "cart" stays on the builder so customers can add more than one perfume
   // before checking out — the usual add-to-cart-then-checkout-when-ready
   // shape. "whatsapp" is a deliberate one-click fast path for someone who
   // already knows they only want this one, straight to WhatsApp handoff.
   const handleAddToCart = (mode: "cart" | "whatsapp") => {
-    if (!quote) return;
+    if (!quote || !fragrance || !effectiveBottle || !selectedPackaging || !canOrder) return;
     addItem({
       fragranceId: fragrance.id,
       fragranceName: fragrance.name,
@@ -113,6 +144,14 @@ export function PerfumeBuilder({
     window.setTimeout(() => setAdded(false), 1800);
   };
 
+  if (!fragrance) {
+    return (
+      <Container>
+        <p className="text-body text-muted-gray">Belum ada aroma tersedia.</p>
+      </Container>
+    );
+  }
+
   return (
     <Container>
       <Stack className="gap-8 lg:flex-row lg:gap-12">
@@ -127,9 +166,19 @@ export function PerfumeBuilder({
                   key={f.id}
                   selected={fragranceId === f.id}
                   onClick={() => setFragranceId(f.id)}
+                  disabled={!f.inStock}
+                  className={!f.inStock ? "opacity-50" : undefined}
                   title={f.name}
                   description={f.description}
-                  badge={f.badge ? <Pill className="text-black">{f.badge}</Pill> : undefined}
+                  badge={
+                    !f.inStock ? (
+                      <Pill className="bg-black-400 text-ivory">Habis</Pill>
+                    ) : f.discountPercent > 0 ? (
+                      <Pill className="bg-error text-ivory">Diskon {f.discountPercent}%</Pill>
+                    ) : f.badge ? (
+                      <Pill className="text-black">{f.badge}</Pill>
+                    ) : undefined
+                  }
                 />
               ))}
             </div>
@@ -227,10 +276,13 @@ export function PerfumeBuilder({
               {availableBottles.map((b) => (
                 <OptionCard
                   key={b.id}
-                  selected={effectiveBottle.id === b.id}
+                  selected={effectiveBottle?.id === b.id}
                   onClick={() => setBottleId(b.id)}
+                  disabled={!b.inStock}
+                  className={!b.inStock ? "opacity-50" : undefined}
                   title={b.name}
                   description={`${b.volumeMl} ml`}
+                  badge={!b.inStock ? <Pill className="bg-black-400 text-ivory">Habis</Pill> : undefined}
                 />
               ))}
             </div>
@@ -245,8 +297,11 @@ export function PerfumeBuilder({
                   key={p.id}
                   selected={packagingId === p.id}
                   onClick={() => setPackagingId(p.id)}
+                  disabled={!p.inStock}
+                  className={!p.inStock ? "opacity-50" : undefined}
                   title={p.name}
                   description={p.description}
+                  badge={!p.inStock ? <Pill className="bg-black-400 text-ivory">Habis</Pill> : undefined}
                 />
               ))}
             </div>
@@ -262,11 +317,16 @@ export function PerfumeBuilder({
                 <Row label="Aroma" value={fragrance.name} />
                 <Row label="Ukuran" value={`${volumeMl} ml`} />
                 <Row label="Jumlah aroma" value={`${strength} ml`} />
-                <Row label="Botol" value={effectiveBottle.name} />
-                <Row label="Packaging" value={selectedPackaging.name} />
+                <Row label="Botol" value={effectiveBottle?.name ?? "-"} />
+                <Row label="Packaging" value={selectedPackaging?.name ?? "-"} />
               </dl>
               {quote ? (
                 <div className="border-t border-black-400 pt-4">
+                  {originalQuote && originalQuote.total > quote.total ? (
+                    <p className="text-body text-muted-gray line-through">
+                      Rp{originalQuote.total.toLocaleString("id-ID")}
+                    </p>
+                  ) : null}
                   <PriceDisplay
                     price={quote.total}
                     prefix
@@ -276,7 +336,10 @@ export function PerfumeBuilder({
               ) : (
                 <p className="text-body text-error">Konfigurasi tidak tersedia.</p>
               )}
-              <Button intent="primary" size="lg" className="w-full" onClick={() => handleAddToCart("cart")}>
+              {!canOrder && quote ? (
+                <p className="text-caption text-error">Salah satu pilihan sedang habis stok.</p>
+              ) : null}
+              <Button intent="primary" size="lg" className="w-full" onClick={() => handleAddToCart("cart")} disabled={!canOrder}>
                 {added ? "✓ Masuk keranjang" : "Tambah ke Keranjang"}
               </Button>
               <Button
@@ -284,6 +347,7 @@ export function PerfumeBuilder({
                 size="lg"
                 className="w-full"
                 onClick={() => handleAddToCart("whatsapp")}
+                disabled={!canOrder}
               >
                 Pesan via WhatsApp
               </Button>

@@ -3,16 +3,19 @@ import type { Metadata } from 'next';
 import { PerfumeBuilder } from '@/components/PerfumeBuilder';
 import { SiteNav } from '@/components/SiteNav';
 import { Container, Stack, Badge } from '@atlase/ui';
-import { getFragranceBySlug, fragrances } from '@atlase/config';
+import { getFragranceBySlug, getFragrances, getBottles, getPackaging, volumePresets, alcoholSellPerMl } from '@/lib/catalog';
 
 type Params = { slug: string };
 
-export function generateStaticParams(): Params[] {
-  return fragrances.map((f) => ({ slug: f.slug }));
-}
+// Dynamic + short-lived cache instead of generateStaticParams/SSG: the
+// catalog now lives in Supabase and admin edits (price, discount, stock)
+// should show up without a redeploy.
+export const revalidate = 60;
+export const dynamicParams = true;
 
-export function generateMetadata({ params }: { params: Params }): Metadata {
-  const fragrance = getFragranceBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { slug } = await params;
+  const fragrance = await getFragranceBySlug(slug);
   if (!fragrance) return {};
 
   const title = `${fragrance.name} — Parfum Custom | ATLASE`;
@@ -32,8 +35,14 @@ export function generateMetadata({ params }: { params: Params }): Metadata {
   };
 }
 
-export default async function ProdukPage({ params }: { params: Params }) {
-  const fragrance = getFragranceBySlug(params.slug);
+export default async function ProdukPage({ params }: { params: Promise<Params> }) {
+  const { slug } = await params;
+  const [fragrance, fragrances, bottles, packaging] = await Promise.all([
+    getFragranceBySlug(slug),
+    getFragrances(),
+    getBottles(),
+    getPackaging(),
+  ]);
   if (!fragrance) notFound();
 
   return (
@@ -55,7 +64,14 @@ export default async function ProdukPage({ params }: { params: Params }) {
           </Stack>
         </Container>
         <div className="mt-10">
-          <PerfumeBuilder initialSlug={params.slug} />
+          <PerfumeBuilder
+            fragrances={fragrances}
+            bottles={bottles}
+            packaging={packaging}
+            volumePresets={volumePresets}
+            alcoholSellPerMl={alcoholSellPerMl}
+            initialSlug={slug}
+          />
         </div>
       </main>
     </>

@@ -6,7 +6,7 @@ import {
   getBottleById,
   getPackagingById,
   alcoholSellPerMl,
-} from '@atlase/config';
+} from '@/lib/catalog';
 import { generateOrderNumber } from '@/lib/order';
 import { rateLimit, clientIp, isCrossOrigin } from '@/lib/security';
 import { reservationLines, reserveStock } from '@/lib/inventory';
@@ -66,18 +66,23 @@ export async function POST(req: Request) {
       unitPrice: number;
       input: OrderInput['items'][number];
       fragranceName: string;
-      fragranceSlug: string;
-      bottleSlug: string;
-      packagingSlug: string;
     }> = [];
     for (const item of body.items) {
-      const fragrance = getFragranceById(item.fragranceId);
-      const bottle = getBottleById(item.bottleId);
-      const pack = getPackagingById(item.packagingId);
+      const [fragrance, bottle, pack] = await Promise.all([
+        getFragranceById(item.fragranceId),
+        getBottleById(item.bottleId),
+        getPackagingById(item.packagingId),
+      ]);
       if (!fragrance || !bottle || !pack) {
         return NextResponse.json(
           { error: { message: 'Produk pilihan tidak tersedia.' } },
           { status: 400 },
+        );
+      }
+      if (!fragrance.inStock || !bottle.inStock || !pack.inStock) {
+        return NextResponse.json(
+          { error: { message: 'Salah satu produk sedang habis stok.' } },
+          { status: 409 },
         );
       }
       try {
@@ -85,7 +90,10 @@ export async function POST(req: Request) {
           fragrance: {
             id: fragrance.id,
             name: fragrance.name,
-            pricePerMl: fragrance.pricePerMl,
+            // Discount lives on the fragrance's per-ml price (§ discount
+            // model chosen for the admin's simple "10% off this aroma"
+            // case) — bottle/packaging/alcohol are never discounted.
+            pricePerMl: fragrance.effectivePricePerMl,
             minMl: fragrance.minMl,
             maxMl: fragrance.maxMl,
           },
@@ -112,9 +120,6 @@ export async function POST(req: Request) {
           unitPrice: quote.total,
           input: item,
           fragranceName: fragrance.name,
-          fragranceSlug: fragrance.slug,
-          bottleSlug: bottle.slug,
-          packagingSlug: pack.slug,
         });
       } catch (e) {
         if (e instanceof PricingError) {
@@ -225,37 +230,19 @@ export async function POST(req: Request) {
         if (orderErr) throw orderErr;
         orderId = order?.id ?? null;
 
-        // fragrance_id/bottle_id/packaging_id are real FK uuid columns — the
-        // catalog (@atlase/config) uses static string ids, so resolve them
-        // to DB row ids by slug (seeded with matching slugs). A slug not
-        // found in the DB (unseeded catalog entry) falls back to null —
-        // these columns are nullable, so the order still persists.
-        const fragranceSlugs = [...new Set(pricedItems.map((pi) => pi.fragranceSlug))];
-        const bottleSlugs = [...new Set(pricedItems.map((pi) => pi.bottleSlug))];
-        const packagingSlugs = [...new Set(pricedItems.map((pi) => pi.packagingSlug))];
-        const [{ data: fragranceRows }, { data: bottleRows }, { data: packagingRows }] =
-          await Promise.all([
-            db.from('fragrances').select('id, slug').in('slug', fragranceSlugs),
-            db.from('bottles').select('id, slug').in('slug', bottleSlugs),
-            db.from('packaging').select('id, slug').in('slug', packagingSlugs),
-          ]);
-        const fragranceIdBySlug = new Map(
-          (fragranceRows ?? []).map((r) => [r.slug, r.id as string]),
-        );
-        const bottleIdBySlug = new Map((bottleRows ?? []).map((r) => [r.slug, r.id as string]));
-        const packagingIdBySlug = new Map(
-          (packagingRows ?? []).map((r) => [r.slug, r.id as string]),
-        );
-
+        // fragrance_id/bottle_id/packaging_id are real FK uuid columns, and
+        // item.*Id already IS that DB row id (the storefront now reads its
+        // catalog from these same tables via @/lib/catalog — no slug
+        // resolution needed).
         const resolvedItems: Array<{
           bottleId: string | null;
           packagingId: string | null;
           quantity: number;
         }> = [];
         for (const pi of pricedItems) {
-          const fragranceId = fragranceIdBySlug.get(pi.fragranceSlug) ?? null;
-          const bottleId = bottleIdBySlug.get(pi.bottleSlug) ?? null;
-          const packagingId = packagingIdBySlug.get(pi.packagingSlug) ?? null;
+          const fragranceId = pi.input.fragranceId;
+          const bottleId = pi.input.bottleId;
+          const packagingId = pi.input.packagingId;
           resolvedItems.push({ bottleId, packagingId, quantity: pi.input.quantity });
 
           const { error: itemErr } = await db.from('order_items').insert({

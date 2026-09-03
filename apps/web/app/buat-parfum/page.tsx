@@ -1,6 +1,9 @@
 import { PerfumeBuilder } from '@/components/PerfumeBuilder';
 import { SiteNav } from '@/components/SiteNav';
 import { SectionHeading } from '@atlase/ui';
+import { getFragrances, getBottles, getPackaging, volumePresets, alcoholSellPerMl } from '@/lib/catalog';
+
+export const revalidate = 60;
 
 export const metadata = {
   title: 'Buat Parfum Kamu — ATLASE',
@@ -8,7 +11,13 @@ export const metadata = {
     'Pilih aroma, ukuran, dan kekuatan aroma. Harganya langsung berubah. Mulai dari Rp29.000.',
 };
 
-export default function BuatParfumPage() {
+export default async function BuatParfumPage() {
+  const [fragrances, bottles, packaging] = await Promise.all([
+    getFragrances(),
+    getBottles(),
+    getPackaging(),
+  ]);
+
   return (
     <>
       <SiteNav />
@@ -20,7 +29,13 @@ export default function BuatParfumPage() {
           className="px-4 sm:px-6"
         />
         <div className="mt-10">
-          <PerfumeBuilder />
+          <PerfumeBuilder
+            fragrances={fragrances}
+            bottles={bottles}
+            packaging={packaging}
+            volumePresets={volumePresets}
+            alcoholSellPerMl={alcoholSellPerMl}
+          />
         </div>
       </main>
     </>

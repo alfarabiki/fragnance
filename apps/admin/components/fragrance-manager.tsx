@@ -17,6 +17,7 @@ interface FragranceRow {
   max_ml?: number | null;
   cost_per_ml?: number | null;
   price_per_ml?: number | null;
+  discount_percent?: number | null;
   is_active?: boolean | null;
   image_url?: string | null;
   video_url?: string | null;
@@ -48,6 +49,7 @@ function FragranceCard({ fragrance }: { fragrance: FragranceRow }) {
     maxMl: fragrance.max_ml ?? 50,
     costPerMl: fragrance.cost_per_ml ?? 0,
     pricePerMl: fragrance.price_per_ml ?? 0,
+    discountPercent: fragrance.discount_percent ?? 0,
     isActive: fragrance.is_active ?? true,
   });
   const [imageUrl, setImageUrl] = useState(fragrance.image_url ?? null);
@@ -110,6 +112,7 @@ function FragranceCard({ fragrance }: { fragrance: FragranceRow }) {
 
   const margin = form.pricePerMl - form.costPerMl;
   const marginPct = form.pricePerMl > 0 ? Math.round((margin / form.pricePerMl) * 100) : 0;
+  const discountedPricePerMl = Math.round(form.pricePerMl * (1 - form.discountPercent / 100));
 
   return (
     <Card className="overflow-hidden">
@@ -178,10 +181,26 @@ function FragranceCard({ fragrance }: { fragrance: FragranceRow }) {
                 onChange={(e) => updateForm("maxMl", Number(e.target.value))}
               />
             </Field>
+            <Field label="Diskon (%)">
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                value={form.discountPercent}
+                onChange={(e) => updateForm("discountPercent", Number(e.target.value))}
+              />
+            </Field>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             Margin {formatRupiah(margin)}/ml ({marginPct}%)
           </p>
+          {form.discountPercent > 0 ? (
+            <p className="text-xs text-muted-foreground">
+              Harga setelah diskon:{" "}
+              <span className="line-through">{formatRupiah(form.pricePerMl)}</span>{" "}
+              <span className="font-medium text-foreground">{formatRupiah(discountedPricePerMl)}</span>/ml
+            </p>
+          ) : null}
         </div>
 
         <label className="flex items-center gap-2 text-sm">

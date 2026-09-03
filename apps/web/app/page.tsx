@@ -7,32 +7,26 @@ import { ScentField } from '@/components/ScentField';
 import { AmbientVideo } from '@/components/AmbientVideo';
 import { Reveal, StaggerGroup, StaggerItem } from '@/components/motion/Reveal';
 import { ProductCard } from '@/components/ProductCard';
+import { getFragrances, getBottles, getPackaging, computeDefaultQuote } from '@/lib/catalog';
 
-const featuredFragrances = [
-  {
-    slug: 'dior-inspired',
-    name: 'Dior-inspired',
-    desc: 'Aroma elegan · Cocok untuk malam',
-    price: 29000,
-    badge: 'BEST SELLER' as const,
-  },
-  {
-    slug: 'woody-fresh',
-    name: 'Woody Fresh',
-    desc: 'Segar setiap hari',
-    price: 29000,
-    badge: 'POPULAR' as const,
-  },
-  {
-    slug: 'sweet-vanilla',
-    name: 'Sweet Vanilla',
-    desc: 'Manis dan hangat',
-    price: 39000,
-    badge: 'NEW' as const,
-  },
-];
+export const revalidate = 60;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [fragrances, bottles, packaging] = await Promise.all([
+    getFragrances(),
+    getBottles(),
+    getPackaging(),
+  ]);
+
+  const quotedFragrances = fragrances
+    .map((f) => ({ fragrance: f, quote: computeDefaultQuote(f, bottles, packaging) }))
+    .filter((x): x is { fragrance: typeof fragrances[number]; quote: NonNullable<typeof x.quote> } => x.quote !== null);
+
+  const featured = quotedFragrances.slice(0, 3);
+  const startingPrice = quotedFragrances.length
+    ? Math.min(...quotedFragrances.map((x) => x.quote.unitPrice))
+    : 29000;
+
   return (
     <>
       {/* 1. Navbar */}
@@ -54,7 +48,7 @@ export default function HomePage() {
               </h1>
             </StaggerItem>
             <StaggerItem>
-              <PriceTicker target={29000} />
+              <PriceTicker target={startingPrice} />
             </StaggerItem>
             <StaggerItem>
               <p className="text-body-lg max-w-md text-muted-gray">
@@ -75,7 +69,7 @@ export default function HomePage() {
         <Container className="py-8">
           <Stack direction="row" className="items-center justify-between gap-4">
             <span className="text-body">Mulai dari</span>
-            <strong className="text-display-2 text-emerald">Rp29.000</strong>
+            <strong className="text-display-2 text-emerald">Rp{startingPrice.toLocaleString('id-ID')}</strong>
           </Stack>
         </Container>
       </section>
@@ -91,9 +85,16 @@ export default function HomePage() {
             />
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-3" stagger={0.1}>
-            {featuredFragrances.map((f, i) => (
-              <StaggerItem key={f.slug}>
-                <ProductCard fragrance={f} priority={i === 0} />
+            {featured.map(({ fragrance, quote }, i) => (
+              <StaggerItem key={fragrance.slug}>
+                <ProductCard
+                  fragrance={fragrance}
+                  bottle={quote.bottle}
+                  packaging={quote.packaging}
+                  unitPrice={quote.unitPrice}
+                  originalUnitPrice={quote.originalUnitPrice}
+                  priority={i === 0}
+                />
               </StaggerItem>
             ))}
           </StaggerGroup>

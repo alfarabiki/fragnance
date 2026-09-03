@@ -24,6 +24,7 @@ interface UpdateBody {
   isActive?: boolean;
   pricePerMl?: number;
   costPerMl?: number;
+  discountPercent?: number;
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -42,6 +43,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (body.minMl !== undefined) fields.min_ml = body.minMl;
   if (body.maxMl !== undefined) fields.max_ml = body.maxMl;
   if (body.isActive !== undefined) fields.is_active = body.isActive;
+  if (body.discountPercent !== undefined) {
+    if (body.discountPercent < 0 || body.discountPercent > 100) {
+      return NextResponse.json({ error: { message: "Diskon harus 0-100%." } }, { status: 400 });
+    }
+    fields.discount_percent = body.discountPercent;
+  }
 
   if (Object.keys(fields).length > 0) {
     const { error } = await client.from("fragrances").update(fields).eq("id", id);
