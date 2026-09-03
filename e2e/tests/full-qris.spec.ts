@@ -30,11 +30,12 @@ test("full QRIS journey: build → cart → address → QRIS → paid → succes
   await page.getByRole("button", { name: /Bayar dengan QRIS/i }).click();
   await page.waitForURL("**/payment?channel=qris**");
 
-  // Payment waiting screen. This test env has no Supabase/Midtrans backend
-  // configured, so the page honestly shows the simulation fallback instead
-  // of faking a "paid" state (§7 — payment status is only ever confirmed via
-  // the Midtrans webhook, never a client-side timer). The paid→success path
-  // needs real sandbox credentials to exercise end-to-end.
+  // Payment waiting screen. This test env has Supabase but no Midtrans
+  // credentials, so the order persists but the page honestly surfaces the
+  // backend's "Midtrans belum dikonfigurasi" error instead of faking a
+  // "paid" state (§7 — payment status is only ever confirmed via the
+  // Midtrans webhook, never a client-side timer). The paid→success path
+  // needs real Midtrans sandbox credentials to exercise end-to-end.
   await expect(page.getByText("Menunggu Pembayaran").first()).toBeVisible();
-  await expect(page.getByText(/Mode simulasi/i)).toBeVisible();
+  await expect(page.getByText(/Midtrans belum dikonfigurasi/i)).toBeVisible();
 });
