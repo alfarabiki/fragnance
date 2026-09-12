@@ -1,5 +1,24 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabase } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+
+// Being logged into Supabase Auth only proves "has an account" — a storefront
+// customer account works just as well. Admin access requires an ACTIVE row in
+// admin_users (§51/§52 RBAC), checked here with the service-role key since
+// admin_users has no anon/authenticated RLS policy (0002_rls_policies.sql).
+async function isActiveAdmin(authUserId: string): Promise<boolean> {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return false;
+  const db = createSupabase(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+  const { data } = await db
+    .from("admin_users")
+    .select("id")
+    .eq("supabase_auth_id", authUserId)
+    .eq("status", "ACTIVE")
+    .maybeSingle();
+  return Boolean(data);
+}
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next({ request: req });
@@ -29,12 +48,15 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isLogin = req.nextUrl.pathname === "/login";
-  if (!user && !isLogin) {
+  const authorized = user ? await isActiveAdmin(user.id) : false;
+
+  if (!authorized && !isLogin) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
+    if (user) url.searchParams.set("error", "not_admin");
     return NextResponse.redirect(url);
   }
-  if (user && isLogin) {
+  if (authorized && isLogin) {
     const url = req.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);

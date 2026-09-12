@@ -9,19 +9,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { listOrders } from "@/lib/data";
+import { listOrders, getDashboardStats } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
-const stats = [
-  { label: "Total Pesanan", value: "0", hint: "Hari ini" },
-  { label: "Pendapatan", value: "Rp0", hint: "7 hari" },
-  { label: "Pelanggan", value: "0", hint: "Terdaftar" },
-  { label: "WhatsApp", value: "0", hint: "Channel" },
-];
-
 export default async function AdminDashboard() {
-  const orders = await listOrders();
+  const [orders, dashboardStats] = await Promise.all([listOrders(), getDashboardStats()]);
+  const stats = [
+    { label: "Total Pesanan", value: String(dashboardStats.totalOrders), hint: "Semua waktu" },
+    { label: "Pendapatan", value: `Rp${dashboardStats.revenuePaid.toLocaleString("id-ID")}`, hint: "Order dibayar" },
+    { label: "Pelanggan", value: String(dashboardStats.totalCustomers), hint: "Terdaftar" },
+    { label: "WhatsApp", value: String(dashboardStats.whatsappOrders), hint: "Channel" },
+  ];
   return (
     <div className="space-y-6">
       <div>
