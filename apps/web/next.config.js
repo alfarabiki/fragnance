@@ -33,6 +33,15 @@ const nextConfig = {
     "@atlase/pricing",
     "@atlase/types",
   ],
+  images: {
+    // Product photos/videos live in Supabase Storage (public bucket
+    // "product-media", uploaded via the admin media route) — without this,
+    // next/image's optimizer 400s on every external URL and shows a broken
+    // image icon instead of the photo.
+    remotePatterns: [
+      { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
+    ],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

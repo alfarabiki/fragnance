@@ -63,7 +63,7 @@ export interface LivePackaging {
 }
 
 interface StockMap {
-  get(itemType: string, itemId: string): { qty: number; inStock: boolean };
+  get(itemType: string, itemId: string): { qty: number; inStock: boolean; hasRecord: boolean };
 }
 
 async function loadStock(client: ReturnType<typeof db>): Promise<StockMap> {
@@ -75,8 +75,10 @@ async function loadStock(client: ReturnType<typeof db>): Promise<StockMap> {
   }
   return {
     get(itemType, itemId) {
-      const qty = map.get(`${itemType}:${itemId}`) ?? 0;
-      return { qty, inStock: qty > 0 };
+      const key = `${itemType}:${itemId}`;
+      const hasRecord = map.has(key);
+      const qty = map.get(key) ?? 0;
+      return { qty, inStock: qty > 0, hasRecord };
     },
   };
 }
@@ -96,7 +98,13 @@ export async function getFragrances(): Promise<LiveFragrance[]> {
     const pricing = priceByFragrance.get(f.id as string);
     const pricePerMl = Number(pricing?.price_per_ml ?? 0);
     const discountPercent = Number(f.discount_percent ?? 0);
-    const { qty, inStock } = stock.get("FRAGRANCE", f.id as string);
+    // Unlike bottles/packaging (physical SKUs, always given an inventory_items
+    // row on creation — see admin's bottles/packaging POST routes), fragrance
+    // concentrate has no admin UI to set stock at all (§55 "where applicable").
+    // No record must mean "not tracked", not "out of stock", or every
+    // fragrance the admin creates is born unpurchasable.
+    const fragranceStock = stock.get("FRAGRANCE", f.id as string);
+    const inStock = fragranceStock.hasRecord ? fragranceStock.inStock : true;
     return {
       id: f.id as string,
       slug: f.slug as string,
@@ -116,7 +124,7 @@ export async function getFragrances(): Promise<LiveFragrance[]> {
       imageUrl: (f.image_url as string) ?? null,
       videoUrl: (f.video_url as string) ?? null,
       inStock,
-      stockQty: qty,
+      stockQty: fragranceStock.qty,
     };
   });
 }
