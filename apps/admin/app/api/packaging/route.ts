@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabase } from "@supabase/supabase-js";
 import { upsertStock } from "@/lib/inventory";
+import { revalidateWeb } from "@/lib/revalidate-web";
 
 function db() {
   const url = process.env.SUPABASE_URL;
@@ -72,6 +73,8 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
+
+  await revalidateWeb();
 
   return NextResponse.json({ ok: true, packaging: { ...pack, current_stock: body.currentStock ?? 0 } });
 }

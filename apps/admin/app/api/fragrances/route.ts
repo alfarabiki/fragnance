@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabase } from "@supabase/supabase-js";
 import { getOrCreateActivePricingVersion } from "@/lib/pricing-version";
+import { revalidateWeb } from "@/lib/revalidate-web";
 
 // Same service-role write path as [id]/route.ts — RLS denies writes by
 // default, so catalog creation only happens server-side here.
@@ -85,6 +86,8 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
+
+  await revalidateWeb();
 
   return NextResponse.json({
     ok: true,

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabase } from "@supabase/supabase-js";
 import { getOrCreateActivePricingVersion } from "@/lib/pricing-version";
+import { revalidateWeb } from "@/lib/revalidate-web";
 
 // Admin-only writes to the catalog. Middleware already gates every route
 // behind a logged-in Supabase session (see apps/admin/middleware.ts); this
@@ -97,6 +98,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       if (error) return NextResponse.json({ error: { message: error.message } }, { status: 500 });
     }
   }
+
+  await revalidateWeb();
 
   return NextResponse.json({ ok: true });
 }

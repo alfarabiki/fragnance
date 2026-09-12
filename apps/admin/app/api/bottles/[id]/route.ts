@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabase } from "@supabase/supabase-js";
 import { upsertStock } from "@/lib/inventory";
+import { revalidateWeb } from "@/lib/revalidate-web";
 
 function db() {
   const url = process.env.SUPABASE_URL;
@@ -43,6 +44,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const { error } = await upsertStock(client, "BOTTLE", id, body.currentStock);
     if (error) return NextResponse.json({ error: { message: error } }, { status: 500 });
   }
+
+  await revalidateWeb();
 
   return NextResponse.json({ ok: true });
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabase } from "@supabase/supabase-js";
+import { revalidateWeb } from "@/lib/revalidate-web";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 25 * 1024 * 1024;
@@ -56,6 +57,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (updateErr) {
     return NextResponse.json({ error: { message: updateErr.message } }, { status: 500 });
   }
+
+  await revalidateWeb();
 
   return NextResponse.json({ ok: true, url: publicUrl.publicUrl });
 }
