@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { fragrances } from "@atlase/config";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,18 +17,19 @@ type EditedFragrance = {
   pricePerMl: number;
 };
 
-export function PricingTierEditor() {
-  const [rows, setRows] = useState<EditedFragrance[]>(
-    fragrances.map((f) => ({
-      id: f.id,
-      name: f.name,
-      costPerMl: f.costPerMl,
-      pricePerMl: f.pricePerMl,
-    })),
-  );
-  const [status, setStatus] = useState<PricingVersionStatus>("DRAFT");
-  const [version, setVersion] = useState("v1.1");
+export function PricingTierEditor({
+  initial,
+  activeVersionLabel,
+}: {
+  initial: EditedFragrance[];
+  activeVersionLabel: string;
+}) {
+  const router = useRouter();
+  const [rows, setRows] = useState<EditedFragrance[]>(initial);
+  const [status, setStatus] = useState<PricingVersionStatus>("ACTIVE");
+  const [version, setVersion] = useState(activeVersionLabel);
   const [notice, setNotice] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   function update(id: string, field: "costPerMl" | "pricePerMl", value: number) {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
@@ -36,19 +37,37 @@ export function PricingTierEditor() {
     setNotice(null);
   }
 
-  function publish(next: PricingVersionStatus, label: string) {
-    // In production this persists a new pricing_versions row + fragrance_pricing
-    // rows (audit-logged). Without a live DB connection, we record intent locally.
-    setStatus(next);
-    if (next === "ACTIVE") {
-      setVersion(label);
-      setNotice("Pricing v" + label + " kini aktif. Harga lama tidak terpengaruh (snapshot dijaga).");
-    } else {
-      setNotice("Status: " + next);
-    }
+  function preview() {
+    setStatus("PREVIEW");
+    setNotice(`Preview: ${rows.length} aroma akan dipublish dengan harga baru di atas.`);
   }
 
-  const nextLabel = parseInt(version.replace("v", ""), 10) + 1;
+  async function publish() {
+    setPublishing(true);
+    setNotice(null);
+    try {
+      const res = await fetch("/api/pricing/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rows: rows.map((r) => ({ fragranceId: r.id, costPerMl: r.costPerMl, pricePerMl: r.pricePerMl })),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setNotice(data?.error?.message || "Gagal publish.");
+        return;
+      }
+      setStatus("ACTIVE");
+      setVersion(data.version.label);
+      setNotice(`Pricing ${data.version.label} kini aktif. Harga lama tidak terpengaruh (snapshot dijaga).`);
+      router.refresh();
+    } catch {
+      setNotice("Gagal publish. Periksa koneksi.");
+    } finally {
+      setPublishing(false);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -69,14 +88,11 @@ export function PricingTierEditor() {
               </CardDescription>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => publish("PREVIEW", version)}>
+              <Button size="sm" variant="outline" onClick={preview} disabled={publishing}>
                 Preview
               </Button>
-              <Button
-                size="sm"
-                onClick={() => publish("ACTIVE", "v" + nextLabel)}
-              >
-                Publish v{nextLabel}
+              <Button size="sm" onClick={publish} disabled={publishing}>
+                {publishing ? "Publishing..." : "Publish"}
               </Button>
             </div>
           </div>

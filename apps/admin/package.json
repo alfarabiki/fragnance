@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit -p .",
-    "test": "echo ok"
+    "test": "vitest run"
   },
   "dependencies": {
     "@atlase/config": "workspace:*",

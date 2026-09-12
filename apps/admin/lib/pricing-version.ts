@@ -21,3 +21,14 @@ export async function getOrCreateActivePricingVersion(client: SupabaseClient): P
   if (error) throw new Error(error.message);
   return created.id as string;
 }
+
+// v1.0 -> v1.1 -> v1.2 ... used by /api/pricing/publish to name each new
+// pricing_versions row. No prior version (fresh DB, nothing published yet)
+// starts at v1.0; an unparseable label also falls back to v1.0 rather than
+// blocking the publish.
+export function nextLabel(current: string | null): string {
+  if (!current) return "v1.0";
+  const n = parseFloat(current.replace(/^v/i, ""));
+  if (!Number.isFinite(n)) return "v1.0";
+  return `v${(Math.round((n + 0.1) * 10) / 10).toFixed(1)}`;
+}

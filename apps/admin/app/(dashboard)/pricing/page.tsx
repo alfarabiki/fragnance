@@ -11,16 +11,49 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { listFragrances, listBottles, listPackaging } from "@/lib/data";
+import { listFragrances, listBottles, listPackaging, getActivePricingVersion } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 export default async function PricingPage() {
-  const [fragranceRows, bottleRows, packagingRows] = await Promise.all([
+  const [fragranceRows, bottleRows, packagingRows, activeVersion] = await Promise.all([
     listFragrances(),
     listBottles(),
     listPackaging(),
+    getActivePricingVersion(),
   ]);
+
+  const simFragrances = fragranceRows.map((f) => ({
+    id: String(f.id),
+    name: String(f.name),
+    pricePerMl: Number(f.price_per_ml),
+    costPerMl: Number(f.cost_per_ml),
+    minMl: Number(f.min_ml),
+    maxMl: Number(f.max_ml),
+  }));
+  const simBottles = bottleRows.map((b) => ({
+    id: String(b.id),
+    name: String(b.name),
+    volumeMl: Number(b.volume_ml),
+    costPrice: Number(b.cost_price),
+    sellPrice: Number(b.sell_price),
+    isActive: Boolean(b.is_active),
+  }));
+  const simPackaging = packagingRows.map((p) => ({
+    id: String(p.id),
+    name: String(p.name),
+    costPrice: Number(p.cost_price),
+    sellPrice: Number(p.sell_price),
+    isMandatory: Boolean(p.is_mandatory),
+    isActive: Boolean(p.is_active),
+  }));
+  const editorRows = fragranceRows.map((f) => ({
+    id: String(f.id),
+    name: String(f.name),
+    costPerMl: Number(f.cost_per_ml),
+    pricePerMl: Number(f.price_per_ml),
+  }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -39,11 +72,11 @@ export default async function PricingPage() {
         </TabsList>
 
         <TabsContent value="simulator" className="pt-4">
-          <PricingSimulator />
+          <PricingSimulator fragrances={simFragrances} bottles={simBottles} packaging={simPackaging} />
         </TabsContent>
 
         <TabsContent value="versions" className="pt-4">
-          <PricingTierEditor />
+          <PricingTierEditor initial={editorRows} activeVersionLabel={activeVersion?.label ?? "v1.0"} />
         </TabsContent>
 
         <TabsContent value="fragrance" className="pt-4">

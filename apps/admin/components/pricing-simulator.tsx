@@ -2,15 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { calculate, PricingError } from "@atlase/pricing";
-import {
-  fragrances,
-  bottles,
-  packaging,
-  volumePresets,
-  getBottlesByVolume,
-  alcoholSellPerMl,
-  alcoholCostPerMl,
-} from "@atlase/config";
+import { alcoholSellPerMl, alcoholCostPerMl, volumePresets } from "@atlase/config";
 import {
   Card,
   CardContent,
@@ -27,18 +19,54 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function PricingSimulator() {
-  const [fragranceId, setFragranceId] = useState(fragrances[0]!.id);
+interface SimFragrance {
+  id: string;
+  name: string;
+  pricePerMl: number;
+  costPerMl: number;
+  minMl: number;
+  maxMl: number;
+}
+interface SimBottle {
+  id: string;
+  name: string;
+  volumeMl: number;
+  costPrice: number;
+  sellPrice: number;
+  isActive: boolean;
+}
+interface SimPackaging {
+  id: string;
+  name: string;
+  costPrice: number;
+  sellPrice: number;
+  isMandatory: boolean;
+  isActive: boolean;
+}
+
+export function PricingSimulator({
+  fragrances,
+  bottles,
+  packaging,
+}: {
+  fragrances: SimFragrance[];
+  bottles: SimBottle[];
+  packaging: SimPackaging[];
+}) {
+  const getBottlesByVolume = (vol: number) => bottles.filter((b) => b.volumeMl === vol && b.isActive);
+
+  const [fragranceId, setFragranceId] = useState(fragrances[0]?.id ?? "");
   const [volume, setVolume] = useState(50);
   const [fragranceMl, setFragranceMl] = useState(25);
-  const [bottleId, setBottleId] = useState(getBottlesByVolume(50)[0]!.id);
-  const [packagingId, setPackagingId] = useState(packaging[0]!.id);
+  const [bottleId, setBottleId] = useState(getBottlesByVolume(50)[0]?.id ?? "");
+  const [packagingId, setPackagingId] = useState(packaging[0]?.id ?? "");
 
-  const fragrance = fragrances.find((f) => f.id === fragranceId)!;
-  const bottle = bottles.find((b) => b.id === bottleId) ?? getBottlesByVolume(volume)[0]!;
-  const pack = packaging.find((p) => p.id === packagingId)!;
+  const fragrance = fragrances.find((f) => f.id === fragranceId);
+  const bottle = bottles.find((b) => b.id === bottleId) ?? getBottlesByVolume(volume)[0];
+  const pack = packaging.find((p) => p.id === packagingId);
 
   const result = useMemo(() => {
+    if (!fragrance || !bottle || !pack) return null;
     try {
       const quote = calculate({
         fragrance: { id: fragrance.id, name: fragrance.name, pricePerMl: fragrance.pricePerMl, minMl: fragrance.minMl, maxMl: fragrance.maxMl },
@@ -48,7 +76,6 @@ export function PricingSimulator() {
         volumeMl: volume,
         fragranceMl,
       });
-      // cost breakdown
       const alcoholMl = volume - fragranceMl;
       const cost =
         fragranceMl * fragrance.costPerMl +
@@ -68,6 +95,16 @@ export function PricingSimulator() {
     setVolume(vol);
     const first = getBottlesByVolume(vol)[0];
     if (first) setBottleId(first.id);
+  }
+
+  if (!fragrance || !bottle || !pack) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-sm text-muted-foreground">
+          Belum ada fragrance/botol/packaging aktif untuk disimulasikan.
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
