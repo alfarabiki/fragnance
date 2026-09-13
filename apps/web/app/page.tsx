@@ -78,11 +78,16 @@ export default async function HomePage() {
       <section id="aroma" className="py-24">
         <Container>
           <Reveal>
-            <SectionHeading
-              eyebrow="Koleksi"
-              title="Pilih aroma favoritmu"
-              description="Setiap aroma bisa kamu sesuaikan kekuatannya."
-            />
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <SectionHeading
+                eyebrow="Koleksi"
+                title="Pilih aroma favoritmu"
+                description="Setiap aroma bisa kamu sesuaikan kekuatannya."
+              />
+              <a href="/aroma" className="text-body text-emerald hover:underline">
+                Lihat Semua Aroma →
+              </a>
+            </div>
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-3" stagger={0.1}>
             {featured.map(({ fragrance, quote }, i) => (

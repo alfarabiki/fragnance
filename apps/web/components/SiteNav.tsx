@@ -5,7 +5,7 @@ import { Container, Stack } from "@atlase/ui";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 
 const LINKS = [
-  { href: "/produk/dior-inspired", label: "Aroma" },
+  { href: "/aroma", label: "Aroma" },
   { href: "/buat-parfum", label: "Buat Parfum" },
   { href: "#faq", label: "FAQ" },
 ];
