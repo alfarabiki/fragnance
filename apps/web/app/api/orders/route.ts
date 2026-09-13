@@ -75,7 +75,12 @@ export async function POST(req: Request) {
       ]);
       if (!fragrance || !bottle || !pack) {
         return NextResponse.json(
-          { error: { message: 'Produk pilihan tidak tersedia.' } },
+          {
+            error: {
+              message:
+                'Salah satu produk di keranjangmu sudah tidak tersedia. Hapus item itu dari daftar pesanan lalu coba lagi.',
+            },
+          },
           { status: 400 },
         );
       }

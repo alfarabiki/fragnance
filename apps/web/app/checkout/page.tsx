@@ -11,7 +11,7 @@ import type { OrderAddress } from "@/lib/whatsapp";
 type Step = "pesanan" | "alamat" | "cara";
 
 function CheckoutContent() {
-  const { items, subtotal } = useCart();
+  const { items, subtotal, remove } = useCart();
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialChannel = searchParams.get("channel");
@@ -108,7 +108,13 @@ function CheckoutContent() {
       });
       const data = await res.json();
       if (!res.ok || !data?.order) {
-        setSubmitError(data?.error?.message || "Pesanan belum bisa dibuat. Silakan coba lagi.");
+        const message = data?.error?.message || "Pesanan belum bisa dibuat. Silakan coba lagi.";
+        setSubmitError(message);
+        // Product-unavailable errors are only actionable from step 1, where
+        // each item has a "Hapus" button — jump back so the fix is visible.
+        if (res.status === 400 && message.includes("tidak tersedia")) {
+          setStep("pesanan");
+        }
         return;
       }
       saveOrderSession({
@@ -156,6 +162,7 @@ function CheckoutContent() {
         {step === "pesanan" ? (
           <section>
             <h1 className="text-heading-1">Pesananmu</h1>
+            {submitError ? <p className="mt-2 text-caption text-error">{submitError}</p> : null}
             <ul className="mt-4 divide-y divide-ivory-200">
               {items.map((item) => (
                 <li key={item.itemId} className="flex items-center justify-between py-4">
@@ -165,6 +172,13 @@ function CheckoutContent() {
                       {item.volumeMl} ml · Aroma {item.fragranceMl} ml · {item.bottleName} ·{" "}
                       {item.packagingName}
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => remove(item.itemId)}
+                      className="mt-1 text-caption text-error"
+                    >
+                      Hapus
+                    </button>
                   </div>
                   <div className="text-right">
                     <PriceDisplay price={item.unitPrice * item.quantity} />
