@@ -33,8 +33,11 @@ function CheckoutContent() {
 
   useEffect(() => {
     track("checkout_started");
-    if (initialChannel === "whatsapp" && step === "alamat") {
-      setStep("cara");
+    // "whatsapp" fast path (§ PerfumeBuilder's one-click CTA): the customer
+    // already knows what they want, so skip the order-review step and land
+    // straight on address entry instead of restarting at step 1.
+    if (initialChannel === "whatsapp") {
+      setStep("alamat");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
