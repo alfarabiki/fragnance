@@ -49,7 +49,9 @@ export function toDynamic(staticQris: string, nominal: string | number): string 
   if (err) throw new Error(err)
   const body = staticQris.slice(0, -4)
   const withPointOfInitiation = body.replace("010211", "010212")
-  const [beforeCountry, afterCountry] = withPointOfInitiation.split("5802ID")
+  const parts = withPointOfInitiation.split("5802ID")
+  const beforeCountry = parts[0] ?? ""
+  const afterCountry = parts[1] ?? ""
   const amountField = "54" + nominalStr.length.toString().padStart(2, "0") + nominalStr
   const withoutCrc = beforeCountry.trim() + amountField + "5802ID" + afterCountry.trim()
   return withoutCrc + crc16(withoutCrc)
