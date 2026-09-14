@@ -51,6 +51,15 @@ function CheckoutContent() {
     );
   }, [form]);
 
+  const validationErrors = useMemo(() => {
+    const errors: string[] = [];
+    if (form.recipientName.length < 2) errors.push("Nama minimal 2 huruf.");
+    if (form.phone.replace(/\D/g, "").length < 9) errors.push("Nomor WA minimal 9 digit.");
+    if (form.fullAddress.length < 5) errors.push("Alamat minimal 5 karakter.");
+    if (!/^\d{5}$/.test(form.postalCode)) errors.push("Kode pos harus 5 digit angka.");
+    return errors;
+  }, [form]);
+
   if (items.length === 0) {
     return (
       <Container className="py-20 text-center">
@@ -249,13 +258,11 @@ function CheckoutContent() {
               </Button>
             </div>
             {!addressValid ? (
-              <p className="mt-2 text-caption text-error">
-                {form.phone.replace(/\D/g, "").length < 9
-                  ? "Nomor WhatsApp harus minimal 9 digit."
-                  : form.postalCode.length !== 5
-                  ? "Kode pos harus tepat 5 digit angka."
-                  : "Lengkapi nama, nomor WA, alamat, dan kode pos 5 digit."}
-              </p>
+              <ul className="mt-2 list-inside list-disc text-caption text-error">
+                {validationErrors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
             ) : null}
           </section>
         ) : null}
