@@ -130,14 +130,23 @@ export function CartDrawer() {
                   <footer className="border-t border-ivory-200 px-6 py-4">
                     <Stack className="gap-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-body">Subtotal</span>
+                        <span className="text-body font-medium">Subtotal</span>
                         <PriceDisplay price={subtotal} />
                       </div>
-                      <Button intent="primary" size="lg" className="w-full" asChild>
-                        <Link href="/checkout" onClick={() => setOpen(false)}>
-                          Lanjut Pesan
-                        </Link>
-                      </Button>
+                      <Link
+                        href="/checkout"
+                        onClick={() => setOpen(false)}
+                        className="inline-flex w-full items-center justify-center rounded-md bg-emerald px-5 py-3 text-button font-semibold text-black transition active:scale-[0.98]"
+                      >
+                        Checkout
+                      </Link>
+                      <Link
+                        href="/checkout?channel=whatsapp"
+                        onClick={() => setOpen(false)}
+                        className="inline-flex w-full items-center justify-center rounded-md border border-emerald bg-transparent px-5 py-3 text-button font-semibold text-emerald transition hover:bg-emerald-50"
+                      >
+                        Pesan via WhatsApp
+                      </Link>
                     </Stack>
                   </footer>
                 ) : null}
