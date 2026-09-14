@@ -1,7 +1,7 @@
 import { PerfumeBuilder } from '@/components/PerfumeBuilder';
 import { SiteNav } from '@/components/SiteNav';
 import { SectionHeading } from '@atlase/ui';
-import { getFragrances, getBottles, getPackaging, volumePresets, alcoholSellPerMl } from '@/lib/catalog';
+import { getFragrances, getBottles, getPackaging, getVolumePresets, getAlcoholSellPerMl } from '@/lib/catalog';
 
 export const revalidate = 60;
 
@@ -12,10 +12,12 @@ export const metadata = {
 };
 
 export default async function BuatParfumPage() {
-  const [fragrances, bottles, packaging] = await Promise.all([
+  const [fragrances, bottles, packaging, volumePresets, alcoholSellPerMl] = await Promise.all([
     getFragrances(),
     getBottles(),
     getPackaging(),
+    getVolumePresets(),
+    getAlcoholSellPerMl(),
   ]);
 
   return (

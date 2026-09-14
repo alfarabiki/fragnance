@@ -211,6 +211,47 @@ export async function getPackagingById(id: string): Promise<LivePackaging | unde
 export const volumePresets = [30, 50, 70, 100] as const;
 export const alcoholSellPerMl = 300;
 
+// Admin-editable via system_settings (admin.mizparfume.com → Settings).
+// Fall back to the constants above when the DB is unreachable or unseeded.
+type NumericSetting = { value?: unknown };
+async function readNumber(key: string, fallback: number): Promise<number> {
+  const client = db();
+  if (!client) return fallback;
+  try {
+    const { data } = await client.from("system_settings").select("value").eq("key", key).maybeSingle();
+    const v = Number((data?.value as NumericSetting)?.value ?? data?.value);
+    return Number.isFinite(v) && v > 0 ? v : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+type ArraySetting = { value?: unknown };
+async function readNumberArray(key: string, fallback: readonly number[]): Promise<number[]> {
+  const client = db();
+  if (!client) return [...fallback];
+  try {
+    const { data } = await client.from("system_settings").select("value").eq("key", key).maybeSingle();
+    const raw = (data?.value as ArraySetting)?.value ?? data?.value;
+    if (Array.isArray(raw)) {
+      const nums = raw.map(Number).filter((n) => Number.isFinite(n) && n > 0);
+      if (nums.length > 0) return [...new Set(nums)].sort((a, b) => a - b);
+    }
+    return [...fallback];
+  } catch {
+    return [...fallback];
+  }
+}
+
+export async function getAlcoholSellPerMl(): Promise<number> {
+  // Supports both `{"value": 500}` and plain `500` jsonb shapes.
+  return readNumber("alcohol_price_per_ml", alcoholSellPerMl);
+}
+
+export async function getVolumePresets(): Promise<number[]> {
+  return readNumberArray("volume_presets", volumePresets);
+}
+
 export const DEFAULT_QUOTE_VOLUME_ML = 50;
 export const DEFAULT_QUOTE_STRENGTH_ML = 25;
 
@@ -229,6 +270,7 @@ export function computeDefaultQuote(
   fragrance: LiveFragrance,
   bottles: LiveBottle[],
   packaging: LivePackaging[],
+  alcoholPrice = alcoholSellPerMl,
 ): DefaultQuote | null {
   const bottle =
     bottles.find((b) => b.volumeMl === DEFAULT_QUOTE_VOLUME_ML && b.name.toLowerCase().includes("standard")) ??
@@ -243,7 +285,7 @@ export function computeDefaultQuote(
       fragrance: { id: fragrance.id, name: fragrance.name, pricePerMl: fragrance.effectivePricePerMl, minMl: fragrance.minMl, maxMl: fragrance.maxMl },
       bottle: { id: bottle.id, name: bottle.name, volumeMl: bottle.volumeMl, price: bottle.sellPrice, active: bottle.isActive },
       packaging: { id: pack.id, name: pack.name, price: pack.sellPrice, mandatory: pack.isMandatory, active: pack.isActive },
-      alcohol: { pricePerMl: alcoholSellPerMl },
+      alcohol: { pricePerMl: alcoholPrice },
       volumeMl: DEFAULT_QUOTE_VOLUME_ML,
       fragranceMl,
     });
@@ -254,7 +296,7 @@ export function computeDefaultQuote(
         fragrance: { id: fragrance.id, name: fragrance.name, pricePerMl: fragrance.pricePerMl, minMl: fragrance.minMl, maxMl: fragrance.maxMl },
         bottle: { id: bottle.id, name: bottle.name, volumeMl: bottle.volumeMl, price: bottle.sellPrice, active: bottle.isActive },
         packaging: { id: pack.id, name: pack.name, price: pack.sellPrice, mandatory: pack.isMandatory, active: pack.isActive },
-        alcohol: { pricePerMl: alcoholSellPerMl },
+        alcohol: { pricePerMl: alcoholPrice },
         volumeMl: DEFAULT_QUOTE_VOLUME_ML,
         fragranceMl,
       });

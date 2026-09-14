@@ -5,7 +5,7 @@ import {
   getFragranceById,
   getBottleById,
   getPackagingById,
-  alcoholSellPerMl,
+  getAlcoholSellPerMl,
 } from '@/lib/catalog';
 import { generateOrderNumber } from '@/lib/order';
 import { rateLimit, clientIp, isCrossOrigin } from '@/lib/security';
@@ -47,6 +47,8 @@ export async function POST(req: Request) {
         { status: 429 },
       );
     }
+
+    const alcoholSellPerMl = await getAlcoholSellPerMl();
 
     const body = (await req.json()) as OrderInput;
 

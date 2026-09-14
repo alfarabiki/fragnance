@@ -319,6 +319,124 @@ function SaveBar({ onSave, saving, msg }: { onSave: () => void; saving: boolean;
   );
 }
 
+// ─── Volume & Price Editor ───────────────────────────────────────────────────
+function VolumePriceEditor({ settings }: { settings: SettingValue[] }) {
+  const presetRow = settings.find((r) => r.key === "volume_presets");
+  const alcoholRow = settings.find((r) => r.key === "alcohol_price_per_ml");
+
+  const initialPresets = (presetRow?.value as { value?: unknown } | unknown[] | undefined) ?? [30, 50, 70, 100];
+  const initialPresetArray = Array.isArray(initialPresets)
+    ? ((initialPresets as unknown[]).map(Number).filter((n) => Number.isFinite(n) && n > 0))
+    : (Array.isArray((initialPresets as { value?: unknown })?.value)
+      ? ((initialPresets as { value: unknown[] }).value).map(Number).filter((n) => Number.isFinite(n) && n > 0)
+      : [30, 50, 70, 100]);
+
+  const alcoholDefault = alcoholRow ? Number((alcoholRow.value as { value?: unknown } | number | undefined) === null || (alcoholRow.value as { value?: unknown } | number | undefined) === undefined
+    ? 300
+    : (typeof alcoholRow.value === "object"
+        ? ((alcoholRow.value as { value?: unknown }).value ?? 300)
+        : alcoholRow.value)) : 300;
+
+  const [presets, setPresets] = useState<string[]>(initialPresetArray.map(String));
+  const [alcohol, setAlcohol] = useState<string>(String(Number.isFinite(alcoholDefault) ? alcoholDefault : 300));
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  function updatePreset(i: number, v: string) {
+    setPresets((prev) => prev.map((p, idx) => (idx === i ? v : p)));
+  }
+
+  function addPreset() {
+    setPresets((prev) => [...prev, ""]);
+  }
+
+  function removePreset(i: number) {
+    setPresets((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  async function save() {
+    const presetNums = presets.map(Number).filter((n) => Number.isFinite(n) && n > 0);
+    const alcoholNum = Number(alcohol);
+    if (presetNums.length === 0) {
+      setMsg("Masukkan minimal 1 ukuran.");
+      return;
+    }
+    if (!Number.isFinite(alcoholNum) || alcoholNum <= 0) {
+      setMsg("Harga alkohol harus angka positif.");
+      return;
+    }
+    setSaving(true);
+    setMsg(null);
+    try {
+      await Promise.all([
+        fetch("/api/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key: "volume_presets", value: [...new Set(presetNums)].sort((a, b) => a - b) }),
+        }),
+        fetch("/api/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key: "alcohol_price_per_ml", value: alcoholNum }),
+        }),
+      ]);
+      setMsg("Tersimpan ✓");
+    } catch {
+      setMsg("Gagal menyimpan. Periksa koneksi.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">📏 Ukuran & Harga Alkohol</CardTitle>
+        <CardDescription>
+          Ukuran botol yang tersedia di builder & harga alkohol per ml (Rp).
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="space-y-2">
+          <Label className="text-xs">Ukuran Tersedia (ml)</Label>
+          {presets.map((p, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <Input
+                type="number"
+                value={p}
+                onChange={(e) => updatePreset(i, e.target.value)}
+                placeholder="mis. 50"
+              />
+              <button
+                type="button"
+                onClick={() => removePreset(i)}
+                className="text-xs text-destructive hover:underline"
+              >
+                Hapus
+              </button>
+            </div>
+          ))}
+          <Button size="sm" variant="outline" onClick={addPreset}>+ Tambah Ukuran</Button>
+        </div>
+        <div>
+          <Label className="text-xs">Harga Alkohol / ml (Rp)</Label>
+          <Input
+            type="number"
+            value={alcohol}
+            onChange={(e) => setAlcohol(e.target.value)}
+            placeholder="300"
+            className="mt-1"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Memengaruhi harga semua produk. Contoh: ukuran 50 ml (25 ml alkohol) berarti +{Math.round((Number(alcohol) || 300) * 25).toLocaleString("id-ID")} untuk alkohol.
+          </p>
+        </div>
+        <SaveBar onSave={save} saving={saving} msg={msg} />
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Main Manager ────────────────────────────────────────────────────────────
 export function SettingsManager({ initial }: { initial: SettingValue[] }) {
   const find = (key: string) => initial.find((r) => r.key === key) ?? { key, value: {} };
@@ -328,6 +446,7 @@ export function SettingsManager({ initial }: { initial: SettingValue[] }) {
       <HeroEditor setting={find("hero")} />
       <FooterEditor setting={find("footer")} />
       <CheckoutEditor setting={find("checkout")} />
+      <VolumePriceEditor settings={initial} />
       <TestimonialEditor setting={find("social_proof")} />
       <FaqEditor setting={find("faq")} />
     </div>
