@@ -170,6 +170,7 @@ export function PerfumeBuilder({
                   className={!f.inStock ? "opacity-50" : undefined}
                   title={f.name}
                   description={f.description}
+                  image={f.imageUrl}
                   badge={
                     !f.inStock ? (
                       <Pill className="bg-black-400 text-ivory">Habis</Pill>

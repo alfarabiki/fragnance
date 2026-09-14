@@ -8,6 +8,7 @@ export interface OptionCardProps
   title: React.ReactNode;
   description?: React.ReactNode;
   badge?: React.ReactNode;
+  image?: string | null;
 }
 
 /**
@@ -18,7 +19,7 @@ export interface OptionCardProps
  * pale-mint text (§ perfume builder step 1/4/5).
  */
 export const OptionCard = React.forwardRef<HTMLButtonElement, OptionCardProps>(
-  ({ selected, title, description, badge, className, ...rest }, ref) => {
+  ({ selected, title, description, badge, image, className, ...rest }, ref) => {
     return (
       <button
         ref={ref}
@@ -33,6 +34,14 @@ export const OptionCard = React.forwardRef<HTMLButtonElement, OptionCardProps>(
         )}
         {...rest}
       >
+        {image ? (
+          <img
+            src={image}
+            alt={typeof title === "string" ? title : ""}
+            className="mb-3 aspect-square w-full rounded-md object-cover"
+            loading="lazy"
+          />
+        ) : null}
         <span
           className={cn(
             "block text-body font-medium",
