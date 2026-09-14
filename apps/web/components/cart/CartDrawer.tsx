@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { Button, Stack, PriceDisplay } from "@atlase/ui";
+import { Stack, PriceDisplay } from "@atlase/ui";
 import { useCart } from "./CartProvider";
 
 export function CartDrawer() {
