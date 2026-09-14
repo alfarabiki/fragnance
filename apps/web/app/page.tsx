@@ -9,12 +9,12 @@ import { Reveal, StaggerGroup, StaggerItem } from '@/components/motion/Reveal';
 import { ProductCard } from '@/components/ProductCard';
 import { EtalaseCard } from '@/components/EtalaseCard';
 import { getFragrances, getBottles, getPackaging, computeDefaultQuote, getFeaturedFragrances } from '@/lib/catalog';
-import { getHeroSettings, getFooterSettings, getTestimonials, getFaqItems } from '@/lib/settings';
+import { getHeroSettings, getFooterSettings, getTestimonials, getFaqItems, getHomepageSettings } from '@/lib/settings';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [fragrances, bottles, packaging, featuredFragrances, hero, footer, testimonials, faqItems] = await Promise.all([
+  const [fragrances, bottles, packaging, featuredFragrances, hero, footer, testimonials, faqItems, homepage] = await Promise.all([
     getFragrances(),
     getBottles(),
     getPackaging(),
@@ -23,6 +23,7 @@ export default async function HomePage() {
     getFooterSettings(),
     getTestimonials(),
     getFaqItems(),
+    getHomepageSettings(),
   ]);
 
   const quotedFragrances = fragrances
@@ -91,9 +92,9 @@ export default async function HomePage() {
           <Reveal>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <SectionHeading
-                eyebrow="Koleksi"
-                title="Pilih aroma favoritmu"
-                description="Setiap aroma bisa kamu sesuaikan kekuatannya."
+                eyebrow={homepage.collection.eyebrow ?? undefined}
+                title={homepage.collection.title}
+                description={homepage.collection.description}
               />
               <a href="/aroma" className="text-body text-emerald hover:underline">
                 Lihat Semua Aroma →
@@ -114,7 +115,7 @@ export default async function HomePage() {
               </StaggerItem>
             ))}
           </StaggerGroup>
-            <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-2" stagger={0.12}>
+          <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-2" stagger={0.12}>
             <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
               <a href="/buat-parfum" className="absolute inset-0 block">
                 <Image
@@ -157,9 +158,9 @@ export default async function HomePage() {
               <Reveal className="mt-16">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                   <SectionHeading
-                    eyebrow="Etalase"
-                    title="Rekomendasi Minggu Ini"
-                    description="Pilihan favorit dari koleksi kami."
+                    eyebrow={homepage.etalase.eyebrow ?? undefined}
+                    title={homepage.etalase.title}
+                    description={homepage.etalase.description}
                   />
                 </div>
               </Reveal>
@@ -189,25 +190,23 @@ export default async function HomePage() {
       <section className="bg-black-600 py-24">
         <Container>
           <Reveal>
-            <SectionHeading eyebrow="Cara Kerja" title="Gampang, 4 langkah" />
+            <SectionHeading eyebrow={homepage.howItWorks.eyebrow ?? undefined} title={homepage.howItWorks.title} />
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-4" stagger={0.08}>
-            {[
-              ['Pilih Aroma', 'Tentukan wangi favoritmu'],
-              ['Atur Ukuran', '30, 50, 70, atau 100 ml'],
-              ['Sesuaikan', 'Kekuatan aroma & botol'],
-              ['Pesan', 'Langsung via WhatsApp atau QRIS'],
-            ].map(([t, d], i) => (
-              <StaggerItem key={t}>
+            {(homepage.howItWorks.steps as Array<{ title: string; desc: string }> | Array<[string, string]>).map((s: any, i: number) => {
+              const title: string = s.title ?? s[0];
+              const desc: string = s.desc ?? s[1];
+              return (
+              <StaggerItem key={title}>
                 <Stack className="gap-2">
                   <span className="text-display-3 text-emerald">
-                    {String(i + 1).padStart(2, '0')}
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="text-heading-2">{t}</h3>
-                  <p className="text-body text-muted-gray">{d}</p>
+                  <h3 className="text-heading-2">{title}</h3>
+                  <p className="text-body text-muted-gray">{desc}</p>
                 </Stack>
               </StaggerItem>
-            ))}
+            )})}
           </StaggerGroup>
         </Container>
       </section>
@@ -226,12 +225,12 @@ export default async function HomePage() {
             </Reveal>
             <Reveal delay={0.1}>
               <SectionHeading
-                eyebrow="Buat Sendiri"
-                title="Buat Parfum Kamu"
-                description="Sesuaikan dengan budget kamu. Info langsung berubah."
+                eyebrow={homepage.buildYourPerfume.eyebrow ?? undefined}
+                title={homepage.buildYourPerfume.title}
+                description={homepage.buildYourPerfume.description}
               />
               <Button intent="primary" size="lg" className="mt-8" asChild>
-                <a href="/buat-parfum">Mulai Buat Parfum</a>
+                <a href={homepage.buildYourPerfume.ctaLink}>{homepage.buildYourPerfume.ctaText}</a>
               </Button>
             </Reveal>
           </div>
@@ -243,10 +242,10 @@ export default async function HomePage() {
         <Container className="text-center">
           <Reveal>
             <p className="text-display-3 font-semibold text-ivory">
-              Wangi mewah. Harga bersahabat.
+              {homepage.valueBand.title}
             </p>
             <p className="text-body-lg mt-4 text-ivory/80">
-              Pilih aroma, atur sendiri, dan simpan uangmu.
+              {homepage.valueBand.subtitle}
             </p>
           </Reveal>
         </Container>
@@ -256,7 +255,7 @@ export default async function HomePage() {
       <section className="bg-black-600 py-24">
         <Container>
           <Reveal>
-            <SectionHeading eyebrow="Testimoni" title="Kata Mereka" />
+            <SectionHeading eyebrow={homepage.testimonial.eyebrow ?? undefined} title={homepage.testimonial.title} />
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-3" stagger={0.1}>
             {testimonials.map((t) => (
@@ -277,7 +276,7 @@ export default async function HomePage() {
       <section id="faq" className="py-24">
         <Container className="max-w-3xl">
           <Reveal>
-            <SectionHeading eyebrow="FAQ" title="Pertanyaan Umum" />
+            <SectionHeading eyebrow={homepage.faq.eyebrow ?? undefined} title={homepage.faq.title} />
           </Reveal>
           <Reveal delay={0.1} className="mt-12">
             <FaqAccordion items={faqItems} />
@@ -290,13 +289,13 @@ export default async function HomePage() {
         <Container>
           <Reveal>
             <Stack className="items-center gap-6">
-              <h2 className="text-display-3 font-semibold">Tinggal WhatsApp.</h2>
+              <h2 className="text-display-3 font-semibold">{homepage.whatsappCta.title}</h2>
               <p className="text-body-lg max-w-md text-muted-gray">
-                Pesan mudah, harga transparan, dan bisa bayar QRIS.
+                {homepage.whatsappCta.description}
               </p>
               <Button intent="primary" size="xl" asChild>
                 <a href={`https://wa.me/${footer.phone}`} target="_blank" rel="noopener noreferrer">
-                  Pesan via WhatsApp
+                  {homepage.whatsappCta.ctaText}
                 </a>
               </Button>
             </Stack>

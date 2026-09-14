@@ -319,6 +319,126 @@ function SaveBar({ onSave, saving, msg }: { onSave: () => void; saving: boolean;
   );
 }
 
+// ─── Homepage Sections Editor ─────────────────────────────────────────────────
+const DEFAULT_HOMEPAGE: Record<string, unknown> = {
+  collection: { eyebrow: "Koleksi", title: "Pilih aroma favoritmu", description: "Setiap aroma bisa kamu sesuaikan kekuatannya." },
+  etalase: { eyebrow: "Etalase", title: "Rekomendasi Minggu Ini", description: "Pilihan favorit dari koleksi kami." },
+  howItWorks: { eyebrow: "Cara Kerja", title: "Gampang, 4 langkah", steps: [
+    { title: "Pilih Aroma", desc: "Tentukan wangi favoritmu" },
+    { title: "Atur Ukuran", desc: "30, 50, 70, atau 100 ml" },
+    { title: "Sesuaikan", desc: "Kekuatan aroma & botol" },
+    { title: "Pesan", desc: "Langsung via WhatsApp atau QRIS" },
+  ]},
+  buildYourPerfume: { eyebrow: "Buat Sendiri", title: "Buat Parfum Kamu", description: "Sesuaikan dengan budget kamu. Info langsung berubah.", ctaText: "Mulai Buat Parfum", ctaLink: "/buat-parfum" },
+  valueBand: { title: "Wangi mewah. Harga bersahabat.", subtitle: "Pilih aroma, atur sendiri, dan simpan uangmu." },
+  testimonial: { eyebrow: "Testimoni", title: "Kata Mereka" },
+  faq: { eyebrow: "FAQ", title: "Pertanyaan Umum" },
+  whatsappCta: { title: "Tinggal WhatsApp.", description: "Pesan mudah, harga transparan, dan bisa bayar QRIS.", ctaText: "Pesan via WhatsApp" },
+};
+
+function HomepageEditor({ setting }: { setting: SettingValue }) {
+  const initial = (setting.value ?? {}) as Record<string, unknown>;
+  type SectionKey = keyof typeof DEFAULT_HOMEPAGE;
+  const as = (k: SectionKey) => ({ ...(DEFAULT_HOMEPAGE[k] as Record<string, unknown>), ...((initial[k] ?? {}) as Record<string, unknown>) });
+  const [form, setForm] = useState<Record<string, unknown>>(() => {
+    const init: Record<string, unknown> = {};
+    for (const k of Object.keys(DEFAULT_HOMEPAGE)) init[k] = as(k as SectionKey);
+    return init;
+  });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+
+  function update(section: string, field: string, value: string) {
+    setForm((prev) => ({
+      ...prev,
+      [section]: { ...(prev[section] as Record<string, unknown>), [field]: value },
+    }));
+  }
+
+  function updateStep(i: number, field: "title" | "desc", value: string) {
+    setForm((prev) => {
+      const how = prev.howItWorks as Record<string, unknown>;
+      const steps = [...((how.steps as Array<Record<string, string>>) ?? [])];
+      steps[i] = { ...(steps[i] ?? {}), [field]: value };
+      return { ...prev, howItWorks: { ...how, steps } };
+    });
+  }
+
+  function save() {
+    saveSetting(setting.key, form, setMsg, setSaving);
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">📄 Teks Halaman Depan</CardTitle>
+        <CardDescription>
+          Judul, deskripsi & langkah di homepage. Klik bagian yang ingin diubah.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {(
+          [
+            ["collection", "Koleksi", ["eyebrow", "title", "description"] as string[]],
+            ["etalase", "Etalase Grid", ["eyebrow", "title", "description"] as string[]],
+            ["howItWorks", "Cara Kerja", ["eyebrow", "title"] as string[]],
+            ["buildYourPerfume", "Buat Parfum Kamu", ["eyebrow", "title", "description", "ctaText", "ctaLink"] as string[]],
+            ["valueBand", "Sabuk Nilai", ["title", "subtitle"] as string[]],
+            ["testimonial", "Testimoni", ["eyebrow", "title"] as string[]],
+            ["faq", "FAQ", ["eyebrow", "title"] as string[]],
+            ["whatsappCta", "CTA WhatsApp", ["title", "description", "ctaText"] as string[]],
+          ] as Array<[string, string, string[]]>
+        ).map(([key, label, fields]) => {
+          const sec = form[key] as Record<string, string>;
+          const isOpen = editing === key;
+          return (
+            <div key={key} className="rounded-lg border border-border p-3">
+              <button
+                type="button"
+                onClick={() => setEditing(isOpen ? null : key)}
+                className="flex w-full items-center justify-between text-sm font-medium"
+              >
+                {label}
+                <span className="text-xs text-muted-foreground">{isOpen ? "Sembunyikan" : "Edit"}</span>
+              </button>
+              {isOpen ? (
+                <div className="mt-3 space-y-2">
+                  {fields.map((f) => (
+                    <div key={f}>
+                      <Label className="text-xs capitalize">{f}</Label>
+                      <Input
+                        value={String(sec?.[f] ?? "")}
+                        onChange={(e) => update(key, f, e.target.value)}
+                        placeholder={String((DEFAULT_HOMEPAGE[key as keyof typeof DEFAULT_HOMEPAGE] as Record<string, unknown>)?.[f] ?? "")}
+                        className="mt-1"
+                      />
+                    </div>
+                  ))}
+                  {key === "howItWorks" ? (
+                    <div className="space-y-2">
+                      {(((form.howItWorks as Record<string, unknown>).steps as Array<{ title: string; desc: string }>) ?? []).map(
+                        (s, i) => (
+                          <div key={i} className="rounded border border-dashed p-2">
+                            <Label className="text-xs">Langkah {i + 1}</Label>
+                            <Input value={s.title} onChange={(e) => updateStep(i, "title", e.target.value)} placeholder="Judul" className="mt-1" />
+                            <Input value={s.desc} onChange={(e) => updateStep(i, "desc", e.target.value)} placeholder="Deskripsi" className="mt-1" />
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+        <SaveBar onSave={save} saving={saving} msg={msg} />
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Volume & Price Editor ───────────────────────────────────────────────────
 function VolumePriceEditor({ settings }: { settings: SettingValue[] }) {
   const presetRow = settings.find((r) => r.key === "volume_presets");
@@ -445,6 +565,7 @@ export function SettingsManager({ initial }: { initial: SettingValue[] }) {
     <div className="grid gap-4 lg:grid-cols-2">
       <HeroEditor setting={find("hero")} />
       <FooterEditor setting={find("footer")} />
+      <HomepageEditor setting={find("homepage")} />
       <CheckoutEditor setting={find("checkout")} />
       <VolumePriceEditor settings={initial} />
       <TestimonialEditor setting={find("social_proof")} />

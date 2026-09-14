@@ -43,6 +43,28 @@ export interface CheckoutSettings {
   qrisButton?: string;
 }
 
+export interface HomepageSectionTitle {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+}
+
+export interface HomepageStep {
+  title: string;
+  desc: string;
+}
+
+export interface HomepageSectionsSettings {
+  collection: HomepageSectionTitle;
+  etalase: HomepageSectionTitle;
+  howItWorks: HomepageSectionTitle & { steps: HomepageStep[] };
+  buildYourPerfume: HomepageSectionTitle & { ctaText: string; ctaLink: string };
+  valueBand: { title: string; subtitle: string };
+  testimonial: HomepageSectionTitle;
+  faq: HomepageSectionTitle;
+  whatsappCta: { title: string; description: string; ctaText: string };
+}
+
 const DEFAULTS: Record<string, unknown> = {
   hero: {
     eyebrow: "Premium · Made Personal",
@@ -90,6 +112,21 @@ const DEFAULTS: Record<string, unknown> = {
     number: "6287887753802",
     businessName: "Miz",
     orderGreeting: "Halo Miz, saya ingin memesan:",
+  },
+  homepage: {
+    collection: { eyebrow: "Koleksi", title: "Pilih aroma favoritmu", description: "Setiap aroma bisa kamu sesuaikan kekuatannya." },
+    etalase: { eyebrow: "Etalase", title: "Rekomendasi Minggu Ini", description: "Pilihan favorit dari koleksi kami." },
+    howItWorks: { eyebrow: "Cara Kerja", title: "Gampang, 4 langkah", steps: [
+      { title: "Pilih Aroma", desc: "Tentukan wangi favoritmu" },
+      { title: "Atur Ukuran", desc: "30, 50, 70, atau 100 ml" },
+      { title: "Sesuaikan", desc: "Kekuatan aroma & botol" },
+      { title: "Pesan", desc: "Langsung via WhatsApp atau QRIS" },
+    ]},
+    buildYourPerfume: { eyebrow: "Buat Sendiri", title: "Buat Parfum Kamu", description: "Sesuaikan dengan budget kamu. Info langsung berubah.", ctaText: "Mulai Buat Parfum", ctaLink: "/buat-parfum" },
+    valueBand: { title: "Wangi mewah. Harga bersahabat.", subtitle: "Pilih aroma, atur sendiri, dan simpan uangmu." },
+    testimonial: { eyebrow: "Testimoni", title: "Kata Mereka" },
+    faq: { eyebrow: "FAQ", title: "Pertanyaan Umum" },
+    whatsappCta: { title: "Tinggal WhatsApp.", description: "Pesan mudah, harga transparan, dan bisa bayar QRIS.", ctaText: "Pesan via WhatsApp" },
   },
 };
 
@@ -168,4 +205,9 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 export async function getWhatsappSettings(): Promise<{ number: string; businessName: string; orderGreeting: string }> {
   const all = await getAllSettings();
   return merge("whatsapp", all.whatsapp);
+}
+
+export async function getHomepageSettings(): Promise<HomepageSectionsSettings> {
+  const all = await getAllSettings();
+  return merge<HomepageSectionsSettings>("homepage", all.homepage);
 }
