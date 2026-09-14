@@ -104,6 +104,38 @@ export function PerfumeBuilder({
     }
   }, [fragrance, strengthMl, volumeMl, effectiveBottle, selectedPackaging, alcoholSellPerMl]);
 
+  // Estimated "starting from" price for EACH volume option, so customers see
+  // a real number next to 30/50/70/100 ml instead of guessing. Uses the current
+  // fragrance with default strength, the standard bottle for that volume, and
+  // the standard packaging — same inputs the cards use for "Mulai dari".
+  const volumePrice = useMemo(() => {
+    if (!fragrance) return new Map<number, number>();
+    const map = new Map<number, number>();
+    const strength = Math.min(Math.max(strengthMl, fragrance.minMl), fragrance.maxMl);
+    const pack = packaging.find((p) => p.slug === "standard") ?? packaging[0];
+    for (const vol of volumePresets) {
+      if (strength > vol) continue; // can't fit > volume
+      const bottle =
+        bottles.find((b) => b.volumeMl === vol && b.name.toLowerCase().includes("standard")) ??
+        bottles.find((b) => b.volumeMl === vol);
+      if (!bottle || !pack) continue;
+      try {
+        const q = calculate({
+          fragrance: { id: fragrance.id, name: fragrance.name, pricePerMl: fragrance.effectivePricePerMl, minMl: fragrance.minMl, maxMl: fragrance.maxMl },
+          bottle: { id: bottle.id, name: bottle.name, volumeMl: bottle.volumeMl, price: bottle.sellPrice, active: bottle.isActive },
+          packaging: { id: pack.id, name: pack.name, price: pack.sellPrice, mandatory: pack.isMandatory, active: pack.isActive },
+          alcohol: { pricePerMl: alcoholSellPerMl },
+          volumeMl: vol,
+          fragranceMl: strength,
+        });
+        map.set(vol, q.total);
+      } catch {
+        // skip invalid combos
+      }
+    }
+    return map;
+  }, [fragrance, volumePresets, bottles, packaging, strengthMl, alcoholSellPerMl]);
+
   const handleVolume = (vol: number) => {
     setVolumeMl(vol);
     const firstBottle = bottles.find((b) => b.volumeMl === vol);
@@ -188,22 +220,35 @@ export function PerfumeBuilder({
           {/* Step 2: Volume */}
           <section>
             <h2 className="text-subheading text-muted-gray">2 · Pilih Ukuran</h2>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {volumePresets.map((vol) => (
-                <button
-                  key={vol}
-                  type="button"
-                  onClick={() => handleVolume(vol)}
-                  aria-pressed={volumeMl === vol}
-                  className={`rounded-full px-5 py-2 text-body transition ${
-                    volumeMl === vol
-                      ? "bg-emerald text-black"
-                      : "bg-black-600 text-ivory"
-                  }`}
-                >
-                  {vol} ml
-                </button>
-              ))}
+            <p className="text-caption text-muted-gray">
+              Semakin besar, harganya naik. Kamu tetap bisa atur kekuatannya.
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {volumePresets.map((vol) => {
+                const price = volumePrice.get(vol);
+                return (
+                  <button
+                    key={vol}
+                    type="button"
+                    onClick={() => handleVolume(vol)}
+                    aria-pressed={volumeMl === vol}
+                    className={`rounded-lg border p-4 text-left transition ${
+                      volumeMl === vol
+                        ? "border-emerald bg-emerald-50"
+                        : "border-black-400 bg-black-600"
+                    }`}
+                  >
+                    <span className={`block text-body font-semibold ${volumeMl === vol ? "text-emerald-700" : "text-ivory"}`}>
+                      {vol} ml
+                    </span>
+                    {price ? (
+                      <span className={`block text-caption mt-0.5 ${volumeMl === vol ? "text-emerald-700/80" : "text-muted-gray"}`}>
+                        Mulai {formatRp(price)}
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
             </div>
           </section>
 
@@ -363,6 +408,10 @@ export function PerfumeBuilder({
       </Stack>
     </Container>
   );
+}
+
+function formatRp(n: number): string {
+  return `Rp${n.toLocaleString("id-ID")}`;
 }
 
 function Row({ label, value }: { label: string; value: string }) {
