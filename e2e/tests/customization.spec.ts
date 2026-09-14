@@ -1,10 +1,11 @@
 import { test, expect } from "@playwright/test";
+import { TEST_CONFIG } from "../test-config";
 
 test("Customization builder - live price updates when size changes", async ({ page }) => {
-  await page.goto("/buat-parfum");
+  await page.goto(TEST_CONFIG.urls.builder);
 
-  await expect(page.getByText("Buat Parfum Kamu").first()).toBeVisible();
-  await expect(page.getByText("1 · Pilih Aroma")).toBeVisible();
+  await expect(page.getByText(TEST_CONFIG.builder.title).first()).toBeVisible();
+  await expect(page.getByText(TEST_CONFIG.builder.step1)).toBeVisible();
   await expect(page.getByText("Dior-inspired").first()).toBeVisible();
 
   // Default (50ml, Sedang=25ml, Standard bottle 50ml, Standard packaging)

@@ -9,6 +9,8 @@ import {
   Warehouse,
   FlaskConical,
   Gift,
+  Settings2,
+  TestTubeDiagonal,
 } from "lucide-react";
 import {
   Sidebar,
@@ -30,6 +32,8 @@ export const ADMIN_MODULES = [
   { key: "packaging", label: "Packaging", href: "/packaging", icon: Gift },
   { key: "pricing", label: "Pricing", href: "/pricing", icon: Wallet },
   { key: "inventory", label: "Inventory", href: "/inventory", icon: Warehouse },
+  { key: "settings", label: "Settings", href: "/settings", icon: Settings2 },
+  { key: "e2e-config", label: "E2E Config", href: "/e2e-config", icon: TestTubeDiagonal },
 ] as const;
 
 export function AdminSidebar() {
