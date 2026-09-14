@@ -215,7 +215,25 @@ function PaymentContent() {
                 Termasuk biaya layanan {formatRp(qrisData.serviceFee)} ({Math.round(qrisData.serviceFee / qrisData.baseAmount * 1000) / 10}%)
               </p>
             ) : null}
-            <p className="text-caption text-muted-gray animate-pulse">Menunggu konfirmasi pembayaran...</p>
+            
+            {/* Manual confirmation since we don't have automatic callback */}
+            <div className="w-full rounded-lg border border-ivory-200 bg-white p-4">
+              <p className="text-body-sm text-muted-gray mb-3">
+                Sudah selesai bayar? Klik tombol di bawah untuk konfirmasi.
+              </p>
+              <Button
+                intent="primary"
+                size="lg"
+                className="w-full"
+                onClick={() => router.push("/order-sukses?channel=qris&order=" + encodeURIComponent(orderNumber))}
+              >
+                Saya Sudah Bayar
+              </Button>
+            </div>
+            
+            <p className="text-caption text-muted-gray">
+              Setelah bayar, admin akan verifikasi pembayaran dalam 5-10 menit.
+            </p>
           </Stack>
         )}
       </Container>
