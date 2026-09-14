@@ -44,7 +44,7 @@ export function ProductImage({
       aria-label={alt}
       className={`flex items-center justify-center ${aspect} ${className} bg-linear-to-br from-black-600 to-deep-green`}
     >
-      <span className="text-display-3 font-semibold text-ivory/40">ATLASE</span>
+      <span className="text-display-3 font-semibold text-ivory/40">Miz</span>
     </div>
   );
 }

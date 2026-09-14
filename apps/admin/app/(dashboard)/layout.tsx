@@ -16,7 +16,7 @@ export default function DashboardLayout({
           <div className="flex items-center gap-2">
             <SidebarTrigger />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <span className="text-sm font-medium">ATLASE Admin</span>
+            <span className="text-sm font-medium">Miz Admin</span>
           </div>
           <UserMenu />
         </header>

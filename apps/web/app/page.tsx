@@ -267,9 +267,9 @@ export default async function HomePage() {
       <footer className="border-t border-black-400 py-12">
         <Container>
           <Stack className="gap-4">
-            <span className="text-display-3">ATLASE</span>
+            <span className="text-display-3">MIZ</span>
             <p className="text-caption text-muted-gray">
-              Parfum Premium, Sesuai Kamu. © {new Date().getFullYear()} ATLASE.
+              Parfum Premium, Sesuai Kamu. © {new Date().getFullYear()} Miz.
             </p>
           </Stack>
         </Container>

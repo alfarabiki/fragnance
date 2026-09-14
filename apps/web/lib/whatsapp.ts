@@ -56,7 +56,7 @@ export function buildWhatsAppMessage(input: OrderMessageInput): string {
 
   const multi = input.items.length > 1;
   const lines = [
-    "Halo Atlase, saya ingin memesan:",
+    "Halo Miz, saya ingin memesan:",
     "",
     "Order:",
     `#${input.orderNumber}`,

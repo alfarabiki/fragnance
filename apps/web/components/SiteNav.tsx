@@ -16,7 +16,7 @@ export function SiteNav() {
   return (
     <nav className="sticky top-0 z-[100] bg-black/85 backdrop-blur">
       <Container className="flex h-16 items-center justify-between">
-        <span className="text-display-3 font-semibold">ATLASE</span>
+        <span className="text-display-3 font-semibold">Miz</span>
 
         {/* Desktop links */}
         <Stack direction="row" className="hidden items-center gap-6 sm:flex">

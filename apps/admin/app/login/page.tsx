@@ -40,7 +40,7 @@ export default function AdminLogin() {
     <div className="flex min-h-screen items-center justify-center bg-muted px-4">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl">Masuk ke Admin ATLASE</CardTitle>
+          <CardTitle className="text-2xl">Masuk ke Admin Miz</CardTitle>
           <CardDescription>Gunakan akun admin untuk mengelola platform.</CardDescription>
         </CardHeader>
         <CardContent>

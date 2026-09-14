@@ -142,7 +142,7 @@ function PaymentContent() {
               Buka WhatsApp
             </a>
             <p className="text-caption text-center text-muted-gray">
-              Ini membuka WhatsApp dengan detail pesananmu. Kirim, lalu admin Atlase akan konfirmasi.
+              Ini membuka WhatsApp dengan detail pesananmu. Kirim, lalu admin Miz akan konfirmasi.
             </p>
 
             <Button

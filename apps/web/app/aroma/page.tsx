@@ -7,8 +7,8 @@ import { getFragrances, getBottles, getPackaging, computeDefaultQuote } from "@/
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Semua Aroma — ATLASE",
-  description: "Semua koleksi parfum ATLASE. Pilih aroma, atur sendiri wanginya.",
+  title: "Semua Aroma — Miz",
+  description: "Semua koleksi parfum Miz. Pilih aroma, atur sendiri wanginya.",
   alternates: { canonical: "/aroma" },
 };
 

@@ -37,7 +37,7 @@ export function AdminSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1">
-          <span className="text-lg font-semibold tracking-tight">ATLASE</span>
+          <span className="text-lg font-semibold tracking-tight">Miz</span>
           <span className="text-xs text-muted-foreground">Admin</span>
         </div>
       </SidebarHeader>

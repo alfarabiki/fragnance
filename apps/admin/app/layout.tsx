@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "ATLASE Admin",
-  description: "Panel administrasi ATLASE",
+  title: "Miz Admin",
+  description: "Panel administrasi Miz",
 };
 
 export default function AdminLayout({

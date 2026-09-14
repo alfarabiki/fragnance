@@ -64,7 +64,7 @@ describe("whatsapp message (§6 template)", () => {
       address,
     });
 
-    expect(msg).toContain("Halo Atlase, saya ingin memesan:");
+    expect(msg).toContain("Halo Miz, saya ingin memesan:");
     expect(msg).toContain("#ATL-260901-000128");
     expect(msg).toContain("Dior-inspired");
     expect(msg).toContain("50 ml");
@@ -81,7 +81,7 @@ describe("whatsapp message (§6 template)", () => {
   });
 
   it("normalizes phone to +62 and encodes message", () => {
-    const msg = "Halo Atlase, saya ingin memesan:";
+    const msg = "Halo Miz, saya ingin memesan:";
     const link = buildWhatsAppLink("081234567890", msg);
     expect(link).toContain("wa.me/6281234567890");
     expect(link).toContain("text=");

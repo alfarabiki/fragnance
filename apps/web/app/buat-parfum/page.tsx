@@ -6,7 +6,7 @@ import { getFragrances, getBottles, getPackaging, volumePresets, alcoholSellPerM
 export const revalidate = 60;
 
 export const metadata = {
-  title: 'Buat Parfum Kamu — ATLASE',
+  title: 'Buat Parfum Kamu — Miz',
   description:
     'Pilih aroma, ukuran, dan kekuatan aroma. Harganya langsung berubah. Mulai dari Rp29.000.',
 };

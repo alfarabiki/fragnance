@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const fragrance = await getFragranceBySlug(slug);
   if (!fragrance) return {};
 
-  const title = `${fragrance.name} — Parfum Custom | ATLASE`;
+  const title = `${fragrance.name} — Parfum Custom | Miz`;
   const description = `${fragrance.description}. ${fragrance.detail} Mulai dari Rp${fragrance.pricePerMl.toLocaleString('id-ID')}/ml, bisa kamu sesuaikan sendiri.`;
   const canonical = `/produk/${fragrance.slug}`;
 
