@@ -129,7 +129,7 @@ export function PerfumeBuilder({
       fragranceId: fragrance.id,
       fragranceName: fragrance.name,
       volumeMl,
-      fragranceMl: strength,
+      fragranceMl: Math.min(Math.max(strengthMl, fragrance.minMl), fragrance.maxMl),
       bottleId: effectiveBottle.id,
       bottleName: effectiveBottle.name,
       packagingId: selectedPackaging.id,

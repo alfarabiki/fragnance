@@ -70,8 +70,11 @@ function CheckoutContent() {
     );
   }
 
-  const update = (field: keyof OrderAddress) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((f) => ({ ...f, [field]: e.target.value }));
+  const update = (field: keyof OrderAddress) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    let val = e.target.value;
+    if (field === "phone" || field === "postalCode") val = val.replace(/\D/g, "");
+    setForm((f) => ({ ...f, [field]: val }));
+  };
 
   async function submitOrder(channel: "WHATSAPP" | "DIRECT_PAYMENT") {
     setSubmitting(true);
@@ -202,7 +205,7 @@ function CheckoutContent() {
             <h1 className="text-heading-1">Alamat Pengiriman</h1>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Nama" value={form.recipientName} onChange={update("recipientName")} placeholder="Nama lengkap" />
-              <Field label="Nomor WhatsApp" value={form.phone} onChange={update("phone")} placeholder="08xx" prefix="+62" />
+              <Field label="Nomor WhatsApp" value={form.phone} onChange={update("phone")} placeholder="08xx" prefix="+62" inputMode="numeric" pattern="[0-9]*" maxLength={15} />
             </div>
             <div className="mt-4">
               <label className="block text-label">
@@ -217,7 +220,7 @@ function CheckoutContent() {
               </label>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Kode Pos" value={form.postalCode} onChange={update("postalCode")} placeholder="5 digit" />
+              <Field label="Kode Pos" value={form.postalCode} onChange={update("postalCode")} placeholder="5 digit" inputMode="numeric" pattern="[0-9]*" maxLength={5} />
             </div>
             <div className="mt-2">
               <label className="block text-label">
@@ -247,7 +250,11 @@ function CheckoutContent() {
             </div>
             {!addressValid ? (
               <p className="mt-2 text-caption text-error">
-                Lengkapi nama, nomor WA, alamat, dan kode pos 5 digit.
+                {form.phone.replace(/\D/g, "").length < 9
+                  ? "Nomor WhatsApp harus minimal 9 digit."
+                  : form.postalCode.length !== 5
+                  ? "Kode pos harus tepat 5 digit angka."
+                  : "Lengkapi nama, nomor WA, alamat, dan kode pos 5 digit."}
               </p>
             ) : null}
           </section>
@@ -299,12 +306,18 @@ function Field({
   onChange,
   placeholder,
   prefix,
+  inputMode = "text",
+  pattern,
+  maxLength,
 }: {
   label: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   prefix?: string;
+  inputMode?: "text" | "tel" | "numeric" | "email" | "url";
+  pattern?: string;
+  maxLength?: number;
 }) {
   return (
     <label className="block text-label">
@@ -319,6 +332,9 @@ function Field({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
+          inputMode={inputMode}
+          pattern={pattern}
+          maxLength={maxLength}
           className="w-full bg-transparent px-3 py-2 text-body focus:outline-none"
         />
       </div>

@@ -128,8 +128,14 @@ export async function POST(req: Request) {
         });
       } catch (e) {
         if (e instanceof PricingError) {
+          const messages: Partial<Record<string, string>> = {
+            FRAGRANCE_UNDER_MIN: 'Jumlah aroma terlalu sedikit untuk aroma ini.',
+            FRAGRANCE_OVER_MAX: 'Jumlah aroma terlalu banyak untuk ukuran botol ini.',
+            BOTTLE_VOLUME_MISMATCH: 'Ukuran botol tidak sesuai.',
+            VOLUME_INCONSISTENT: 'Jumlah aroma melebihi ukuran botol.',
+          };
           return NextResponse.json(
-            { error: { message: 'Konfigurasi tidak valid.' } },
+            { error: { message: messages[e.code] || 'Konfigurasi parfum tidak valid. Silakan ulangi dari awal.' } },
             { status: 400 },
           );
         }
