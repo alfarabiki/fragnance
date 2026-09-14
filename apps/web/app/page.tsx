@@ -9,15 +9,20 @@ import { Reveal, StaggerGroup, StaggerItem } from '@/components/motion/Reveal';
 import { ProductCard } from '@/components/ProductCard';
 import { EtalaseCard } from '@/components/EtalaseCard';
 import { getFragrances, getBottles, getPackaging, computeDefaultQuote, getFeaturedFragrances } from '@/lib/catalog';
+import { getHeroSettings, getFooterSettings, getTestimonials, getFaqItems } from '@/lib/settings';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [fragrances, bottles, packaging, featuredFragrances] = await Promise.all([
+  const [fragrances, bottles, packaging, featuredFragrances, hero, footer, testimonials, faqItems] = await Promise.all([
     getFragrances(),
     getBottles(),
     getPackaging(),
     getFeaturedFragrances(),
+    getHeroSettings(),
+    getFooterSettings(),
+    getTestimonials(),
+    getFaqItems(),
   ]);
 
   const quotedFragrances = fragrances
@@ -44,13 +49,13 @@ export default async function HomePage() {
         <Container className="relative">
           <StaggerGroup mode="mount" className="flex flex-col items-start gap-8" stagger={0.12}>
             <StaggerItem>
-              <Badge variant="info">Premium · Made Personal</Badge>
+              <Badge variant="info">{hero.badge}</Badge>
             </StaggerItem>
             <StaggerItem>
               <h1 className="text-display-1 font-semibold">
-                PREMIUM FRAGRANCE.
+                {hero.title}
                 <br />
-                MADE PERSONAL.
+                {hero.subtitle}
               </h1>
             </StaggerItem>
             <StaggerItem>
@@ -58,12 +63,12 @@ export default async function HomePage() {
             </StaggerItem>
             <StaggerItem>
               <p className="text-body-lg max-w-md text-muted-gray">
-                Parfum premium yang bisa kamu sesuaikan dengan aroma dan budget kamu.
+                {hero.description}
               </p>
             </StaggerItem>
             <StaggerItem>
               <Button intent="primary" size="lg" asChild>
-                <a href="/buat-parfum">Pilih Aroma</a>
+                <a href={hero.ctaLink}>{hero.ctaText}</a>
               </Button>
             </StaggerItem>
           </StaggerGroup>
@@ -74,7 +79,7 @@ export default async function HomePage() {
       <section className="border-b border-black-400">
         <Container className="py-8">
           <Stack direction="row" className="items-center justify-between gap-4">
-            <span className="text-body">Mulai dari</span>
+            <span className="text-body">{hero.startingPriceText ?? "Mulai dari"}</span>
             <strong className="text-display-2 text-emerald">Rp{startingPrice.toLocaleString('id-ID')}</strong>
           </Stack>
         </Container>
@@ -254,15 +259,13 @@ export default async function HomePage() {
             <SectionHeading eyebrow="Testimoni" title="Kata Mereka" />
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-3" stagger={0.1}>
-            {[
-              ['Siti', 'Wanginya tahan lama, harganya cocok!'],
-              ['Andi', 'Gampang banget atur kekuatannya.'],
-              ['Rina', 'Pesan via WhatsApp, langsung diantar.'],
-            ].map(([n, q]) => (
-              <StaggerItem key={n} className="rounded-lg border border-black-400 p-6">
+            {testimonials.map((t) => (
+              <StaggerItem key={t.name} className="rounded-lg border border-black-400 p-6">
                 <figure>
-                  <blockquote className="text-body">"{q}"</blockquote>
-                  <figcaption className="text-caption mt-3 text-muted-gray">— {n}</figcaption>
+                  <blockquote className="text-body">"{t.quote}"</blockquote>
+                  <figcaption className="text-caption mt-3 text-muted-gray">
+                    — {t.name}{t.role ? `, ${t.role}` : ""}
+                  </figcaption>
                 </figure>
               </StaggerItem>
             ))}
@@ -277,7 +280,7 @@ export default async function HomePage() {
             <SectionHeading eyebrow="FAQ" title="Pertanyaan Umum" />
           </Reveal>
           <Reveal delay={0.1} className="mt-12">
-            <FaqAccordion />
+            <FaqAccordion items={faqItems} />
           </Reveal>
         </Container>
       </section>
@@ -292,7 +295,7 @@ export default async function HomePage() {
                 Pesan mudah, harga transparan, dan bisa bayar QRIS.
               </p>
               <Button intent="primary" size="xl" asChild>
-                <a href="https://wa.me/6287887753802" target="_blank" rel="noopener noreferrer">
+                <a href={`https://wa.me/${footer.phone}`} target="_blank" rel="noopener noreferrer">
                   Pesan via WhatsApp
                 </a>
               </Button>
@@ -307,7 +310,13 @@ export default async function HomePage() {
           <Stack className="gap-4">
             <span className="text-display-3">MIZ</span>
             <p className="text-caption text-muted-gray">
-              Parfum Premium, Sesuai Kamu. © {new Date().getFullYear()} Miz.
+              {footer.copyright.replace("%d", String(new Date().getFullYear()))}
+            </p>
+            <p className="text-caption text-muted-gray">{footer.address}</p>
+            <p className="text-caption text-muted-gray">
+              {footer.instagram ? `IG: ${footer.instagram}` : ""}
+              {footer.instagram && footer.tiktok ? " · " : ""}
+              {footer.tiktok ? `TT: ${footer.tiktok}` : ""}
             </p>
           </Stack>
         </Container>

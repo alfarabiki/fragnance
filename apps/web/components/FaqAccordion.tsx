@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { cn } from "@atlase/ui";
 
-const FAQ_ITEMS = [
+export interface FaqItem {
+  q: string;
+  a: string;
+}
+
+const DEFAULT_FAQ: FaqItem[] = [
   { q: "Berapa harga parfumnya?", a: "Mulai dari Rp29.000. Harga naik sesuai ukuran dan kekuatan aroma yang kamu pilih." },
   { q: "Bisa pilih ukuran?", a: "Tentu. Kamu bisa pilih 30, 50, 70, atau 100 ml." },
   { q: "Bisa menentukan kekuatan aroma?", a: "Bisa. Atur lewat 'Atur Kekuatan Aroma' — dari Lembut hingga Kuat." },
@@ -14,12 +19,12 @@ const FAQ_ITEMS = [
   { q: "Bisa pesan untuk hadiah?", a: "Bisa. Tambahkan packaging Premium atau Gift saat checkout." },
 ];
 
-export function FaqAccordion() {
+export function FaqAccordion({ items = DEFAULT_FAQ }: { items?: FaqItem[] }) {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
     <div className="border-t border-black-400">
-      {FAQ_ITEMS.map((item, idx) => {
+      {items.map((item, idx) => {
         const isOpen = openIdx === idx;
         return (
           <div key={item.q} className="border-b border-black-400">
