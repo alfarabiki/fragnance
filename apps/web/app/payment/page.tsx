@@ -7,6 +7,7 @@ import { useCart } from "@/components/cart/CartProvider";
 import { loadOrderSession, type OrderSession } from "@/lib/order-session";
 import { buildWhatsAppMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import { track } from "@/lib/analytics";
+import { sendPaymentAlert } from "@/lib/telegram";
 
 type Channel = "whatsapp" | "qris";
 
@@ -225,7 +226,18 @@ function PaymentContent() {
                 intent="primary"
                 size="lg"
                 className="w-full"
-                onClick={() => router.push("/order-sukses?channel=qris&order=" + encodeURIComponent(orderNumber))}
+                onClick={async () => {
+                  // Send Telegram alert to team
+                  await sendPaymentAlert({
+                    orderNumber,
+                    customerName: session?.customer?.name || "Pembeli",
+                    customerPhone: session?.customer?.phone || "-",
+                    total,
+                    items: items.map(i => `${i.fragranceName} x${i.quantity}`).join("\n"),
+                    channel: "QRIS",
+                  });
+                  router.push("/order-sukses?channel=qris&order=" + encodeURIComponent(orderNumber));
+                }}
               >
                 Saya Sudah Bayar
               </Button>

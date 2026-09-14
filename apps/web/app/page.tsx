@@ -7,25 +7,31 @@ import { ScentField } from '@/components/ScentField';
 import { AmbientVideo } from '@/components/AmbientVideo';
 import { Reveal, StaggerGroup, StaggerItem } from '@/components/motion/Reveal';
 import { ProductCard } from '@/components/ProductCard';
-import { getFragrances, getBottles, getPackaging, computeDefaultQuote } from '@/lib/catalog';
+import { EtalaseCard } from '@/components/EtalaseCard';
+import { getFragrances, getBottles, getPackaging, computeDefaultQuote, getFeaturedFragrances } from '@/lib/catalog';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [fragrances, bottles, packaging] = await Promise.all([
+  const [fragrances, bottles, packaging, featuredFragrances] = await Promise.all([
     getFragrances(),
     getBottles(),
     getPackaging(),
+    getFeaturedFragrances(),
   ]);
 
   const quotedFragrances = fragrances
     .map((f) => ({ fragrance: f, quote: computeDefaultQuote(f, bottles, packaging) }))
     .filter((x): x is { fragrance: typeof fragrances[number]; quote: NonNullable<typeof x.quote> } => x.quote !== null);
 
+  const quotedFeatured = featuredFragrances
+    .map((f) => ({ fragrance: f, quote: computeDefaultQuote(f, bottles, packaging) }))
+    .filter((x): x is { fragrance: typeof featuredFragrances[number]; quote: NonNullable<typeof x.quote> } => x.quote !== null);
+
   const featured = quotedFragrances.slice(0, 3);
   const startingPrice = quotedFragrances.length
     ? Math.min(...quotedFragrances.map((x) => x.quote.unitPrice))
-    : 29000;
+    : 23500; // Updated starting price to match user's prompt preference or real catalog
 
   return (
     <>
@@ -103,7 +109,7 @@ export default async function HomePage() {
               </StaggerItem>
             ))}
           </StaggerGroup>
-          <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-2" stagger={0.12}>
+            <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-2" stagger={0.12}>
             <StaggerItem className="group relative aspect-[4/5] overflow-hidden rounded-lg">
               <a href="/buat-parfum" className="absolute inset-0 block">
                 <Image
@@ -139,6 +145,38 @@ export default async function HomePage() {
               </a>
             </StaggerItem>
           </StaggerGroup>
+
+          {/* 4b. Etalase Featured (Homepage Grid) */}
+          {quotedFeatured.length > 0 ? (
+            <>
+              <Reveal className="mt-16">
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                  <SectionHeading
+                    eyebrow="Etalase"
+                    title="Rekomendasi Minggu Ini"
+                    description="Pilihan favorit dari koleksi kami."
+                  />
+                </div>
+              </Reveal>
+              <StaggerGroup className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-3" stagger={0.08}>
+                {quotedFeatured.map(({ fragrance, quote }) => (
+                  <StaggerItem key={fragrance.slug}>
+                    <EtalaseCard
+                      fragrance={fragrance}
+                      bottle={quote.bottle}
+                      packaging={quote.packaging}
+                      unitPrice={quote.unitPrice}
+                    />
+                  </StaggerItem>
+                ))}
+              </StaggerGroup>
+              <div className="mt-8 text-center">
+                <a href="/aroma" className="text-body font-medium text-emerald hover:underline">
+                  Lihat Semua Aroma →
+                </a>
+              </div>
+            </>
+          ) : null}
         </Container>
       </section>
 

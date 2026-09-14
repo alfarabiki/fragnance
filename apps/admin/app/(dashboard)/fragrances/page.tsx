@@ -40,6 +40,7 @@ export default async function FragrancesPage() {
             cost_per_ml: f.cost_per_ml != null ? Number(f.cost_per_ml) : null,
             price_per_ml: f.price_per_ml != null ? Number(f.price_per_ml) : null,
             is_active: Boolean(f.is_active),
+            is_featured: Boolean(f.is_featured),
             image_url: f.image_url ? String(f.image_url) : null,
             video_url: f.video_url ? String(f.video_url) : null,
           }))}

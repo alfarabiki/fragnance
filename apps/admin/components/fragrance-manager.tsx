@@ -19,6 +19,7 @@ interface FragranceRow {
   price_per_ml?: number | null;
   discount_percent?: number | null;
   is_active?: boolean | null;
+  is_featured?: boolean | null;
   image_url?: string | null;
   video_url?: string | null;
 }
@@ -51,6 +52,7 @@ function FragranceCard({ fragrance }: { fragrance: FragranceRow }) {
     pricePerMl: fragrance.price_per_ml ?? 0,
     discountPercent: fragrance.discount_percent ?? 0,
     isActive: fragrance.is_active ?? true,
+    isFeatured: fragrance.is_featured ?? false,
   });
   const [imageUrl, setImageUrl] = useState(fragrance.image_url ?? null);
   const [videoUrl, setVideoUrl] = useState(fragrance.video_url ?? null);
@@ -210,6 +212,15 @@ function FragranceCard({ fragrance }: { fragrance: FragranceRow }) {
             onChange={(e) => updateForm("isActive", e.target.checked)}
           />
           Aktif (tampil di storefront)
+        </label>
+
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={form.isFeatured}
+            onChange={(e) => updateForm("isFeatured", e.target.checked)}
+          />
+          ✨ Featured (tampil di etalase homepage)
         </label>
 
         <div className="flex items-center justify-between gap-3 border-t border-border pt-3">

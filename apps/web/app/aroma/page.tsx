@@ -7,9 +7,28 @@ import { getFragrances, getBottles, getPackaging, computeDefaultQuote } from "@/
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Semua Aroma — Miz",
-  description: "Semua koleksi parfum Miz. Pilih aroma, atur sendiri wanginya.",
+  title: "Aroma Parfum Lengkap - Miz Parfume Padang | 100+ Pilihan",
+  description:
+    "Pilihan aroma parfum lengkap di Padang. 100+ aroma parfum pria, wanita, dan unisex. Pilih aroma favorit Anda, custom sesuai selera, harga bersahabat.",
+  keywords: [
+    "aroma parfum",
+    "pilihan aroma parfum",
+    "parfum berbagai aroma",
+    "aroma parfum pria",
+    "aroma parfum wanita",
+    "parfum Padang",
+    "Miz Parfume",
+  ],
   alternates: { canonical: "/aroma" },
+  openGraph: {
+    title: "Aroma Parfum Lengkap - Miz Parfume Padang | 100+ Pilihan",
+    description: "Pilihan aroma parfum lengkap. 100+ aroma parfum pria, wanita, dan unisex di Padang.",
+    url: "https://mizparfume.com/aroma",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default async function AromaPage() {

@@ -23,6 +23,7 @@ interface UpdateBody {
   minMl?: number;
   maxMl?: number;
   isActive?: boolean;
+  isFeatured?: boolean;
   pricePerMl?: number;
   costPerMl?: number;
   discountPercent?: number;
@@ -44,6 +45,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (body.minMl !== undefined) fields.min_ml = body.minMl;
   if (body.maxMl !== undefined) fields.max_ml = body.maxMl;
   if (body.isActive !== undefined) fields.is_active = body.isActive;
+  if (body.isFeatured !== undefined) fields.is_featured = body.isFeatured;
   if (body.discountPercent !== undefined) {
     if (body.discountPercent < 0 || body.discountPercent > 100) {
       return NextResponse.json({ error: { message: "Diskon harus 0-100%." } }, { status: 400 });

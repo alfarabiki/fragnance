@@ -30,6 +30,7 @@ export interface LiveFragrance {
   minMl: number;
   maxMl: number;
   isActive: boolean;
+  isFeatured: boolean;
   badge: "POPULAR" | "NEW" | "PREMIUM" | "BEST SELLER" | null;
   imageUrl: string | null;
   videoUrl: string | null;
@@ -120,6 +121,7 @@ export async function getFragrances(): Promise<LiveFragrance[]> {
       minMl: Number(f.min_ml),
       maxMl: Number(f.max_ml),
       isActive: Boolean(f.is_active),
+      isFeatured: Boolean(f.is_featured),
       badge: (f.badge as LiveFragrance["badge"]) ?? null,
       imageUrl: (f.image_url as string) ?? null,
       videoUrl: (f.video_url as string) ?? null,
@@ -137,6 +139,11 @@ export async function getFragranceBySlug(slug: string): Promise<LiveFragrance | 
 export async function getFragranceById(id: string): Promise<LiveFragrance | undefined> {
   const all = await getFragrances();
   return all.find((f) => f.id === id);
+}
+
+export async function getFeaturedFragrances(): Promise<LiveFragrance[]> {
+  const all = await getFragrances();
+  return all.filter((f) => f.isFeatured).slice(0, 6);
 }
 
 export async function getBottles(): Promise<LiveBottle[]> {
