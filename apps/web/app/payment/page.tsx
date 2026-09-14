@@ -20,57 +20,74 @@ function PaymentContent() {
 
   const { items, subtotal } = useCart();
   const [session] = useState<OrderSession | null>(() => loadOrderSession(orderNumber));
-  const [qr, setQr] = useState<{ qrCodeUrl?: string; redirectUrl?: string } | null>(null);
+  const [qrisData, setQrisData] = useState<{
+    qrisString: string;
+    merchantName: string;
+    baseAmount: number;
+    serviceFee: number;
+    totalAmount: number;
+  } | null>(null);
   const [paid, setPaid] = useState(false);
   const [qrisError, setQrisError] = useState<string | null>(null);
 
-  // QRIS: create the real Midtrans transaction, then poll server-verified
-  // status (never trust a client-side timer — §7).
+  // QRIS: generate dynamic QRIS string from our static→dynamic converter
+  // (no Midtrans needed — pure EMVCo TLV transform from @atlase/pricing)
   useEffect(() => {
     if (channel !== "qris" || !orderNumber) return;
 
-    if (!session?.persisted) {
-      // No backend configured — nothing to create a real transaction against.
-      setQrisError("Mode simulasi: backend belum terhubung ke Supabase/Midtrans.");
+    const amount = session?.total ?? subtotal;
+    if (!amount || amount <= 0) {
+      setQrisError("Nominal tidak valid.");
       return;
     }
 
     let cancelled = false;
-    let pollTimer: ReturnType<typeof setInterval> | undefined;
 
     (async () => {
-      const res = await fetch("/api/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: session.orderId, orderNumber, amount: session.total }),
-      });
-      const data = await res.json();
-      if (cancelled) return;
-      if (!res.ok || !data?.transaction) {
-        setQrisError(data?.error?.message || "Pembayaran belum bisa dibuat.");
-        return;
+      try {
+        const res = await fetch("/api/qris", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nominal: amount }),
+        });
+        const data = await res.json();
+        if (cancelled) return;
+        if (!res.ok || !data?.qris) {
+          setQrisError(data?.error?.message || "QRIS gagal dibuat.");
+          return;
+        }
+        setQrisData({
+          qrisString: data.qris,
+          merchantName: data.merchantName,
+          baseAmount: data.baseAmount,
+          serviceFee: data.serviceFee,
+          totalAmount: data.totalAmount,
+        });
+      } catch {
+        if (!cancelled) setQrisError("Gagal membuat QRIS. Periksa koneksi.");
       }
-      setQr({
-        qrCodeUrl: data.transaction.qris?.qr_code_url,
-        redirectUrl: data.transaction.redirect_url,
-      });
+    })();
 
-      pollTimer = setInterval(async () => {
+    // Simple polling for payment status (when Supabase is configured)
+    if (session?.persisted) {
+      const pollTimer = setInterval(async () => {
         const statusRes = await fetch(`/api/orders/${encodeURIComponent(orderNumber)}/status`);
         if (!statusRes.ok) return;
         const status = await statusRes.json();
         if (status.paymentStatus === "PAID") {
           setPaid(true);
-          if (pollTimer) clearInterval(pollTimer);
+          clearInterval(pollTimer);
         }
-      }, 3000);
-    })();
+      }, 5000);
 
-    return () => {
-      cancelled = true;
-      if (pollTimer) clearInterval(pollTimer);
-    };
-  }, [channel, orderNumber, session]);
+      return () => {
+        cancelled = true;
+        clearInterval(pollTimer);
+      };
+    }
+
+    return () => { cancelled = true; };
+  }, [channel, orderNumber, session, subtotal]);
 
   if (items.length === 0) {
     return (
@@ -83,7 +100,7 @@ function PaymentContent() {
     );
   }
 
-  const total = session?.total ?? subtotal;
+  const total = qrisData?.totalAmount ?? session?.total ?? subtotal;
   const message = buildWhatsAppMessage({
     orderNumber,
     items,
@@ -180,9 +197,8 @@ function PaymentContent() {
                 Scan QRIS di bawah untuk menyelesaikan pembayaran order #{orderNumber}.
               </p>
             </div>
-            {qr?.qrCodeUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={qr.qrCodeUrl} alt="Kode QRIS" className="h-56 w-56 rounded-xl border border-ivory-200 bg-white" />
+            {qrisData?.qrisString ? (
+              <QRCodeDisplay qrisString={qrisData.qrisString} />
             ) : (
               <div className="flex h-56 w-56 items-center justify-center rounded-xl border-2 border-dashed border-ivory-200 bg-white text-center">
                 <span className="px-4 text-caption text-muted-gray">
@@ -194,6 +210,11 @@ function PaymentContent() {
               <span className="text-body">Total</span>
               <PriceDisplay price={total} />
             </div>
+            {qrisData?.serviceFee ? (
+              <p className="text-caption text-muted-gray">
+                Termasuk biaya layanan {formatRp(qrisData.serviceFee)} ({Math.round(qrisData.serviceFee / qrisData.baseAmount * 1000) / 10}%)
+              </p>
+            ) : null}
             <p className="text-caption text-muted-gray animate-pulse">Menunggu konfirmasi pembayaran...</p>
           </Stack>
         )}
@@ -204,6 +225,23 @@ function PaymentContent() {
 
 function formatRp(n: number): string {
   return `Rp${n.toLocaleString("id-ID")}`;
+}
+
+/**
+ * Render QR code image from a QRIS string using a public QR generator API.
+ * The QRIS string itself contains the payment info (merchant + amount) —
+ * this just turns that string into a scannable QR image.
+ */
+function QRCodeDisplay({ qrisString }: { qrisString: string }) {
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrisString)}`;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={qrUrl}
+      alt="Kode QRIS Dinamis"
+      className="h-56 w-56 rounded-xl border border-ivory-200 bg-white"
+    />
+  );
 }
 
 export default function PaymentPage() {
