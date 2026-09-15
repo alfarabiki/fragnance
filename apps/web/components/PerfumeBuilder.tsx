@@ -222,13 +222,14 @@ export function PerfumeBuilder({
               ))}
             </div>
             {visibleAromas < fragrances.length ? (
-              <div className="mt-4 flex justify-center">
+              <div className="mt-4 text-center">
                 <Button
-                  intent="ghost"
-                  size="sm"
+                  intent="primary"
+                  size="lg"
+                  className="w-full"
                   onClick={() => setVisibleAromas((v) => Math.min(v + AROMA_PAGE, fragrances.length))}
                 >
-                  Muat lebih banyak ({fragrances.length - visibleAromas} lagi)
+                  Muat Lebih Banyak ({fragrances.length - visibleAromas} lagi)
                 </Button>
               </div>
             ) : null}
