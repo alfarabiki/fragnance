@@ -193,11 +193,11 @@ export default async function HomePage() {
             <SectionHeading eyebrow={homepage.howItWorks.eyebrow ?? undefined} title={homepage.howItWorks.title} />
           </Reveal>
           <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-4" stagger={0.08}>
-            {(homepage.howItWorks.steps as Array<{ title: string; desc: string }> | Array<[string, string]>).map((s: any, i: number) => {
-              const title: string = s.title ?? s[0];
-              const desc: string = s.desc ?? s[1];
+            {(Array.isArray(homepage.howItWorks.steps) ? homepage.howItWorks.steps : []).map((s: any, i: number) => {
+              const title: string = s?.title ?? s?.[0] ?? "";
+              const desc: string = s?.desc ?? s?.[1] ?? "";
               return (
-              <StaggerItem key={title}>
+              <StaggerItem key={title || i}>
                 <Stack className="gap-2">
                   <span className="text-display-3 text-emerald">
                     {String(i + 1).padStart(2, "0")}

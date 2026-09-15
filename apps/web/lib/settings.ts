@@ -137,16 +137,25 @@ function db() {
   return createClient(url, key);
 }
 
+function deepMerge(base: Record<string, unknown>, incoming: Record<string, unknown>): Record<string, unknown> {
+  const result = { ...base };
+  for (const [k, v] of Object.entries(incoming)) {
+    if (v === null || v === undefined) continue;
+    if (typeof v === "object" && !Array.isArray(v) && typeof result[k] === "object" && result[k] !== null && !Array.isArray(result[k])) {
+      result[k] = deepMerge(result[k] as Record<string, unknown>, v as Record<string, unknown>);
+    } else {
+      result[k] = v;
+    }
+  }
+  return result;
+}
+
 function merge<T>(key: string, incoming: unknown): T {
   const base = DEFAULTS[key] as Record<string, unknown>;
   if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
     return (base ?? {}) as T;
   }
-  const merged = { ...(base ?? {}) };
-  for (const [k, v] of Object.entries(incoming as Record<string, unknown>)) {
-    if (v !== null && v !== undefined) merged[k] = v;
-  }
-  return merged as T;
+  return deepMerge(base ?? {}, incoming as Record<string, unknown>) as T;
 }
 
 /**
