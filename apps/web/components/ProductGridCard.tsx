@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Pill, PriceDisplay } from "@atlase/ui";
 import { ProductImage } from "@/components/ProductImage";
+import { thumbUrl } from "@/lib/catalog";
 import { useCart } from "@/components/cart/CartProvider";
 import type { LiveFragrance, LiveBottle, LivePackaging } from "@/lib/catalog";
 
@@ -41,7 +42,7 @@ export function ProductGridCard({ fragrance, bottle, packaging, unitPrice }: Pro
   return (
     <article className="group overflow-hidden rounded-md border border-black-400 bg-black-600">
       <a href={`/produk/${fragrance.slug}`} className="relative block" aria-label={fragrance.name}>
-        <ProductImage alt={fragrance.name} aspect="aspect-square" {...(fragrance.imageUrl ? { src: fragrance.imageUrl } : {})} />
+        <ProductImage alt={fragrance.name} aspect="aspect-square" {...(thumbUrl(fragrance.imageUrl) ? { src: thumbUrl(fragrance.imageUrl)! } : {})} />
         <div className="absolute left-1.5 top-1.5 flex flex-col gap-1">
           {fragrance.discountPercent > 0 ? (
             <Pill variant="active" className="min-h-0 px-1.5 py-0.5 text-[10px]">

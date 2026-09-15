@@ -6,6 +6,7 @@ import { Button, Pill, PriceDisplay, Stack } from "@atlase/ui";
 import { ProductImage } from "@/components/ProductImage";
 import { EASE_ATLASE } from "@/components/motion/Reveal";
 import { useCart } from "@/components/cart/CartProvider";
+import { thumbUrl } from "@/lib/catalog";
 import type { LiveFragrance, LiveBottle, LivePackaging } from "@/lib/catalog";
 
 interface Props {
@@ -49,7 +50,7 @@ export function ProductCard({ fragrance, bottle, packaging, unitPrice, originalU
     >
       <Stack className="gap-3">
         <a href={`/produk/${fragrance.slug}`} aria-label={`Atur sendiri ${fragrance.name}`}>
-          <ProductImage alt={fragrance.name} priority={priority} {...(fragrance.imageUrl ? { src: fragrance.imageUrl } : {})} />
+          <ProductImage alt={fragrance.name} priority={priority} {...(thumbUrl(fragrance.imageUrl, priority ? 600 : 320) ? { src: thumbUrl(fragrance.imageUrl, priority ? 600 : 320)! } : {})} />
           {!inStock ? (
             <Pill className="bg-black-400 text-ivory">Habis</Pill>
           ) : fragrance.discountPercent > 0 ? (

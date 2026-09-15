@@ -5,6 +5,7 @@ import { Pill, PriceDisplay } from "@atlase/ui";
 import { ProductImage } from "@/components/ProductImage";
 import { useCart } from "@/components/cart/CartProvider";
 import type { LiveFragrance, LiveBottle, LivePackaging } from "@/lib/catalog";
+import { thumbUrl } from "@/lib/catalog";
 
 interface Props {
   fragrance: LiveFragrance;
@@ -49,7 +50,7 @@ export function EtalaseCard({ fragrance, bottle, packaging, unitPrice }: Props) 
         <ProductImage
           alt={fragrance.name}
           aspect="aspect-square"
-          {...(fragrance.imageUrl ? { src: fragrance.imageUrl } : {})}
+          {...(thumbUrl(fragrance.imageUrl) ? { src: thumbUrl(fragrance.imageUrl)! } : {})}
         />
         {/* Badges */}
         <div className="absolute left-2 top-2 flex flex-col gap-1">

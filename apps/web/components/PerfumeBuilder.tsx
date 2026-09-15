@@ -12,6 +12,7 @@ import {
 } from "@atlase/ui";
 import { calculate, PricingError } from "@atlase/pricing";
 import type { LiveFragrance, LiveBottle, LivePackaging } from "@/lib/catalog";
+import { thumbUrl } from "@/lib/catalog";
 import { useCart } from "./cart/CartProvider";
 
 const STRENGTH_PRESETS = [
@@ -19,6 +20,10 @@ const STRENGTH_PRESETS = [
   { label: "Sedang", ml: 25 },
   { label: "Kuat", ml: 35 },
 ] as const;
+
+// Only render a few fragrance cards at a time so the builder doesn't fetch
+// 126 full-size photos at once on first paint (§40/41 — mobile-first perf).
+const AROMA_PAGE = 12;
 
 export function PerfumeBuilder({
   fragrances,
@@ -40,6 +45,7 @@ export function PerfumeBuilder({
       ? (fragrances.find((f) => f.slug === initialSlug)?.id ?? fragrances[0]?.id ?? "")
       : (fragrances[0]?.id ?? ""),
   );
+  const [visibleAromas, setVisibleAromas] = useState(AROMA_PAGE);
   const [volumeMl, setVolumeMl] = useState<number>(50);
   const [strengthMl, setStrengthMl] = useState<number>(25);
   const [customStrength, setCustomStrength] = useState<boolean>(false);
@@ -189,11 +195,11 @@ export function PerfumeBuilder({
       <Stack className="gap-8 lg:flex-row lg:gap-12">
         {/* Left: selection */}
         <Stack className="gap-6 flex-1">
-          {/* Step 1: Aroma */}
+          {/* Step 1: Aroma — first `visibleAromas` cards only, rest on "Muat lebih banyak" */}
           <section>
             <h2 className="text-subheading text-muted-gray">1 · Pilih Aroma</h2>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {fragrances.map((f) => (
+              {fragrances.slice(0, visibleAromas).map((f) => (
                 <OptionCard
                   key={f.id}
                   selected={fragranceId === f.id}
@@ -202,7 +208,7 @@ export function PerfumeBuilder({
                   className={!f.inStock ? "opacity-50" : undefined}
                   title={f.name}
                   description={f.description}
-                  image={f.imageUrl}
+                  image={thumbUrl(f.imageUrl)}
                   badge={
                     !f.inStock ? (
                       <Pill className="bg-black-400 text-ivory">Habis</Pill>
@@ -215,6 +221,17 @@ export function PerfumeBuilder({
                 />
               ))}
             </div>
+            {visibleAromas < fragrances.length ? (
+              <div className="mt-4 flex justify-center">
+                <Button
+                  intent="ghost"
+                  size="sm"
+                  onClick={() => setVisibleAromas((v) => Math.min(v + AROMA_PAGE, fragrances.length))}
+                >
+                  Muat lebih banyak ({fragrances.length - visibleAromas} lagi)
+                </Button>
+              </div>
+            ) : null}
           </section>
 
           {/* Step 2: Volume */}

@@ -5,6 +5,22 @@ import { calculate, PricingError } from "@atlase/pricing";
 // inventory_items are all anon-readable (database/migrations §0002, §0005),
 // so a plain anon-key client works everywhere — request handlers, Server
 // Components, and generateStaticParams (no cookies/request context needed).
+
+/**
+ * Return a resized Supabase Storage URL for a product image. Supabase's image
+ * transform endpoint renders AVIF/WebP downscaled versions on the fly, which
+ * is dramatically cheaper than shipping the original (often multi-MB) photo
+ * for every card in the builder/grid. Falls back to the raw URL untouched
+ * when the URL isn't a Supabase storage path.
+ */
+export function thumbUrl(url: string | null, width = 320): string | null {
+  if (!url) return null;
+  if (url.startsWith("https://") && url.includes("/storage/v1/object/public/")) {
+    const base = url.split("?")[0];
+    return `${base}?width=${width}&quality=70&format=webp`;
+  }
+  return url;
+}
 function db() {
   return createClient(getRequiredEnv("NEXT_PUBLIC_SUPABASE_URL"), getRequiredEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"));
 }
