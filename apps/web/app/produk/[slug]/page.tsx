@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { PerfumeBuilder } from '@/components/PerfumeBuilder';
 import { SiteNav } from '@/components/SiteNav';
 import { Container, Stack, Badge } from '@atlase/ui';
-import { getFragranceBySlug, getFragrances, getBottles, getPackaging, getVolumePresets, getAlcoholSellPerMl } from '@/lib/catalog';
+import { getFragranceBySlug, getFragrances, getBottles, getPackaging, getVolumePresets, getAlcoholSellPerMl, getStrengthPresetPercents } from '@/lib/catalog';
 
 type Params = { slug: string };
 
@@ -37,13 +37,14 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function ProdukPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
-  const [fragrance, fragrances, bottles, packaging, volumePresets, alcoholSellPerMl] = await Promise.all([
+  const [fragrance, fragrances, bottles, packaging, volumePresets, alcoholSellPerMl, strengthPresetPercents] = await Promise.all([
     getFragranceBySlug(slug),
     getFragrances(),
     getBottles(),
     getPackaging(),
     getVolumePresets(),
     getAlcoholSellPerMl(),
+    getStrengthPresetPercents(),
   ]);
   if (!fragrance) notFound();
 
@@ -72,6 +73,7 @@ export default async function ProdukPage({ params }: { params: Promise<Params> }
             packaging={packaging}
             volumePresets={volumePresets}
             alcoholSellPerMl={alcoholSellPerMl}
+            strengthPresetPercents={strengthPresetPercents}
             initialSlug={slug}
           />
         </div>

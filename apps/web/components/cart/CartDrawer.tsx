@@ -7,12 +7,7 @@ import { Stack, PriceDisplay } from "@atlase/ui";
 import { calculate, PricingError } from "@atlase/pricing";
 import { useCart } from "./CartProvider";
 import type { CartItem } from "@/lib/cart";
-
-const STRENGTH_PRESETS = [
-  { label: "Lembut", ml: 15 },
-  { label: "Sedang", ml: 25 },
-  { label: "Kuat", ml: 35 },
-] as const;
+import { computeStrengthPresets } from "@/lib/strength";
 
 export function CartDrawer() {
   const { items, subtotal, count, increment, decrement, remove, updateItem, catalog } = useCart();
@@ -181,15 +176,17 @@ function CartItemOptions({
   catalog: ReturnType<typeof useCart>["catalog"];
   onChange: (item: CartItem) => void;
 }) {
+  const [customStrength, setCustomStrength] = useState(false);
   const fragrance = catalog.fragrances.find((entry) => entry.id === item.fragranceId);
   const packaging = catalog.packaging.find((entry) => entry.id === item.packagingId);
   if (!fragrance || !packaging) return null;
 
   const bottlesForVolume = (volumeMl: number) =>
     catalog.bottles.filter((bottle) => bottle.volumeMl === volumeMl);
-  const strengthOptions = STRENGTH_PRESETS.filter(
-    (preset) =>
-      preset.ml >= fragrance.minMl && preset.ml <= fragrance.maxMl && preset.ml <= item.volumeMl,
+  const strengthOptions = computeStrengthPresets(
+    fragrance.minMl,
+    fragrance.maxMl,
+    catalog.strengthPresetPercents,
   );
 
   const update = (changes: Partial<CartItem>) => {
@@ -257,11 +254,40 @@ function CartItemOptions({
         </OptionGroup>
         <OptionGroup label="Kuat aroma">
           {strengthOptions.map((preset) => (
-            <ChoiceButton key={preset.label} selected={item.fragranceMl === preset.ml} onClick={() => update({ fragranceMl: preset.ml })}>
+            <ChoiceButton
+              key={preset.label}
+              selected={!customStrength && item.fragranceMl === preset.ml}
+              onClick={() => {
+                setCustomStrength(false);
+                update({ fragranceMl: preset.ml });
+              }}
+            >
               {preset.label}
             </ChoiceButton>
           ))}
+          <ChoiceButton selected={customStrength} onClick={() => setCustomStrength(true)}>
+            Atur sendiri
+          </ChoiceButton>
         </OptionGroup>
+        {customStrength ? (
+          <div>
+            <input
+              type="range"
+              min={fragrance.minMl}
+              max={fragrance.maxMl}
+              step={1}
+              value={item.fragranceMl}
+              onChange={(e) => update({ fragranceMl: Number(e.target.value) })}
+              className="w-full accent-emerald"
+              aria-label="Jumlah aroma"
+            />
+            <div className="flex justify-between text-caption text-muted-gray">
+              <span>{fragrance.minMl} ml</span>
+              <span>{item.fragranceMl} ml</span>
+              <span>{fragrance.maxMl} ml</span>
+            </div>
+          </div>
+        ) : null}
         <OptionGroup label="Botol">
           {bottlesForVolume(item.volumeMl).map((bottle) => (
             <ChoiceButton key={bottle.id} selected={item.bottleId === bottle.id} disabled={!bottle.inStock} onClick={() => update({ bottleId: bottle.id, bottleName: bottle.name })}>

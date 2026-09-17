@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { calculate, PricingError } from "@atlase/pricing";
+import { DEFAULT_STRENGTH_PRESET_PERCENTS } from "./strength";
 
 // Live catalog data for the storefront. Fragrances/bottles/packaging/
 // inventory_items are all anon-readable (database/migrations §0002, §0005),
@@ -266,6 +267,24 @@ export async function getAlcoholSellPerMl(): Promise<number> {
 
 export async function getVolumePresets(): Promise<number[]> {
   return readNumberArray("volume_presets", volumePresets);
+}
+
+// Percent-of-range presets (0-100), NOT sorted/deduped like readNumberArray —
+// order is Lembut/Sedang/Kuat and 0 is a valid percent (see lib/strength.ts).
+export async function getStrengthPresetPercents(): Promise<number[]> {
+  const client = db();
+  if (!client) return [...DEFAULT_STRENGTH_PRESET_PERCENTS];
+  try {
+    const { data } = await client.from("system_settings").select("value").eq("key", "strength_presets").maybeSingle();
+    const raw = (data?.value as { value?: unknown })?.value ?? data?.value;
+    if (Array.isArray(raw)) {
+      const nums = raw.map(Number).filter((n) => Number.isFinite(n) && n >= 0 && n <= 100);
+      if (nums.length === 3) return nums;
+    }
+    return [...DEFAULT_STRENGTH_PRESET_PERCENTS];
+  } catch {
+    return [...DEFAULT_STRENGTH_PRESET_PERCENTS];
+  }
 }
 
 export const DEFAULT_QUOTE_VOLUME_ML = 50;

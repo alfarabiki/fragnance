@@ -14,12 +14,7 @@ import { calculate, PricingError } from "@atlase/pricing";
 import type { LiveFragrance, LiveBottle, LivePackaging } from "@/lib/catalog";
 import { thumbUrl } from "@/lib/catalog";
 import { useCart } from "./cart/CartProvider";
-
-const STRENGTH_PRESETS = [
-  { label: "Lembut", ml: 15 },
-  { label: "Sedang", ml: 25 },
-  { label: "Kuat", ml: 35 },
-] as const;
+import { computeStrengthPresets, DEFAULT_STRENGTH_PRESET_PERCENTS } from "@/lib/strength";
 
 // Only render a few fragrance cards at a time so the builder doesn't fetch
 // 126 full-size photos at once on first paint (§40/41 — mobile-first perf).
@@ -31,6 +26,7 @@ export function PerfumeBuilder({
   packaging,
   volumePresets,
   alcoholSellPerMl,
+  strengthPresetPercents = DEFAULT_STRENGTH_PRESET_PERCENTS,
   initialSlug,
 }: {
   fragrances: LiveFragrance[];
@@ -38,6 +34,7 @@ export function PerfumeBuilder({
   packaging: LivePackaging[];
   volumePresets: readonly number[];
   alcoholSellPerMl: number;
+  strengthPresetPercents?: number[];
   initialSlug?: string;
 }) {
   const [fragranceId, setFragranceId] = useState<string>(
@@ -190,6 +187,8 @@ export function PerfumeBuilder({
     );
   }
 
+  const strengthPresets = computeStrengthPresets(fragrance.minMl, fragrance.maxMl, strengthPresetPercents);
+
   return (
     <Container>
       <Stack className="gap-8 lg:flex-row lg:gap-12">
@@ -279,7 +278,7 @@ export function PerfumeBuilder({
               Semakin banyak aroma, wanginya semakin terasa.
             </p>
             <div className="mt-3 flex flex-wrap gap-3">
-              {STRENGTH_PRESETS.map((s) => (
+              {strengthPresets.map((s) => (
                 <button
                   key={s.label}
                   type="button"

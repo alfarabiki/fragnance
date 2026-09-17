@@ -557,6 +557,87 @@ function VolumePriceEditor({ settings }: { settings: SettingValue[] }) {
   );
 }
 
+// ─── Strength Preset Editor ──────────────────────────────────────────────────
+// Lembut/Sedang/Kuat used to be fixed ml values (15/25/35) shared by the
+// builder and cart drawer — broke for any fragrance whose min/max range
+// didn't include those numbers (e.g. min_ml=30 left only "Kuat", or nothing
+// at all). They're now percentages of each fragrance's own [min_ml, max_ml]
+// range, computed per-fragrance in the storefront (apps/web/lib/strength.ts)
+// — always exactly 3 valid, distinct, in-range options.
+function StrengthPresetEditor({ settings }: { settings: SettingValue[] }) {
+  const row = settings.find((r) => r.key === "strength_presets");
+  const raw = (row?.value as { value?: unknown } | unknown[] | undefined) ?? [25, 50, 75];
+  const initial = Array.isArray(raw)
+    ? (raw as unknown[]).map(Number)
+    : Array.isArray((raw as { value?: unknown })?.value)
+      ? ((raw as { value: unknown[] }).value).map(Number)
+      : [25, 50, 75];
+
+  const [lembut, setLembut] = useState(String(initial[0] ?? 25));
+  const [sedang, setSedang] = useState(String(initial[1] ?? 50));
+  const [kuat, setKuat] = useState(String(initial[2] ?? 75));
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  async function save() {
+    const nums = [Number(lembut), Number(sedang), Number(kuat)];
+    if (nums.some((n) => !Number.isFinite(n) || n < 0 || n > 100)) {
+      setMsg("Persen harus angka 0-100.");
+      return;
+    }
+    if (!(nums[0]! < nums[1]! && nums[1]! < nums[2]!)) {
+      setMsg("Urutan harus naik: Lembut < Sedang < Kuat.");
+      return;
+    }
+    setSaving(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "strength_presets", value: nums }),
+      });
+      const data = await res.json();
+      setMsg(res.ok ? "Tersimpan ✓" : data?.error?.message || "Gagal menyimpan.");
+    } catch {
+      setMsg("Gagal menyimpan. Periksa koneksi.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">💨 Kekuatan Aroma</CardTitle>
+        <CardDescription>
+          Posisi Lembut/Sedang/Kuat sebagai persen dari rentang ml setiap aroma (min-max masing-masing produk).
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <Label className="text-xs">Lembut (%)</Label>
+            <Input type="number" min={0} max={100} value={lembut} onChange={(e) => setLembut(e.target.value)} />
+          </div>
+          <div>
+            <Label className="text-xs">Sedang (%)</Label>
+            <Input type="number" min={0} max={100} value={sedang} onChange={(e) => setSedang(e.target.value)} />
+          </div>
+          <div>
+            <Label className="text-xs">Kuat (%)</Label>
+            <Input type="number" min={0} max={100} value={kuat} onChange={(e) => setKuat(e.target.value)} />
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Contoh: aroma dengan rentang 30-100 ml dan Kuat=75% → 30 + 75% × (100-30) = 82 ml.
+        </p>
+        <SaveBar onSave={save} saving={saving} msg={msg} />
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Main Manager ────────────────────────────────────────────────────────────
 export function SettingsManager({ initial }: { initial: SettingValue[] }) {
   const find = (key: string) => initial.find((r) => r.key === key) ?? { key, value: {} };
@@ -568,6 +649,7 @@ export function SettingsManager({ initial }: { initial: SettingValue[] }) {
       <HomepageEditor setting={find("homepage")} />
       <CheckoutEditor setting={find("checkout")} />
       <VolumePriceEditor settings={initial} />
+      <StrengthPresetEditor settings={initial} />
       <TestimonialEditor setting={find("social_proof")} />
       <FaqEditor setting={find("faq")} />
     </div>

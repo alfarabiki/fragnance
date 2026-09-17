@@ -21,6 +21,7 @@ export interface CartCatalog {
   packaging: LivePackaging[];
   volumePresets: number[];
   alcoholSellPerMl: number;
+  strengthPresetPercents: number[];
 }
 
 interface CartContextValue {

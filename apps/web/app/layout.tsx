@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { CartProvider } from "@/components/cart/CartProvider";
-import { getAlcoholSellPerMl, getBottles, getFragrances, getPackaging, getVolumePresets } from "@/lib/catalog";
+import { getAlcoholSellPerMl, getBottles, getFragrances, getPackaging, getVolumePresets, getStrengthPresetPercents } from "@/lib/catalog";
 import "./globals.css";
 
 const inter = Inter({
@@ -65,18 +65,19 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [fragrances, bottles, packaging, volumePresets, alcoholSellPerMl] = await Promise.all([
+  const [fragrances, bottles, packaging, volumePresets, alcoholSellPerMl, strengthPresetPercents] = await Promise.all([
     getFragrances(),
     getBottles(),
     getPackaging(),
     getVolumePresets(),
     getAlcoholSellPerMl(),
+    getStrengthPresetPercents(),
   ]);
 
   return (
     <html lang="id" className={`${inter.variable} ${fraunces.variable}`}>
       <body>
-        <CartProvider catalog={{ fragrances, bottles, packaging, volumePresets, alcoholSellPerMl }}>
+        <CartProvider catalog={{ fragrances, bottles, packaging, volumePresets, alcoholSellPerMl, strengthPresetPercents }}>
           {children}
         </CartProvider>
       </body>
