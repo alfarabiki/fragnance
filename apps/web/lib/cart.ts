@@ -80,3 +80,33 @@ export function setQuantity(current: CartItem[], itemId: string, quantity: numbe
 export function cartSubtotal(items: CartItem[]): number {
   return items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
 }
+
+/**
+ * Replace an existing cart line with a new product configuration. If that
+ * configuration already exists, preserve both quantities on the single line.
+ */
+export function reconfigureItem(
+  current: CartItem[],
+  itemId: string,
+  next: CartItemConfig,
+): CartItem[] {
+  const source = current.find((item) => item.itemId === itemId);
+  if (!source) return current;
+
+  const replacement = { ...normalizeItem(next), quantity: source.quantity };
+  const existingIndex = current.findIndex(
+    (item) => item.itemId === replacement.itemId && item.itemId !== itemId,
+  );
+
+  if (existingIndex >= 0) {
+    return current
+      .filter((item) => item.itemId !== itemId)
+      .map((item) =>
+        item.itemId === replacement.itemId
+          ? { ...replacement, quantity: item.quantity + source.quantity }
+          : item,
+      );
+  }
+
+  return current.map((item) => (item.itemId === itemId ? replacement : item));
+}

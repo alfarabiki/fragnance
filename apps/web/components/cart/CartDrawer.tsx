@@ -4,10 +4,18 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Stack, PriceDisplay } from "@atlase/ui";
+import { calculate, PricingError } from "@atlase/pricing";
 import { useCart } from "./CartProvider";
+import type { CartItem } from "@/lib/cart";
+
+const STRENGTH_PRESETS = [
+  { label: "Lembut", ml: 15 },
+  { label: "Sedang", ml: 25 },
+  { label: "Kuat", ml: 35 },
+] as const;
 
 export function CartDrawer() {
-  const { items, subtotal, count, increment, decrement, remove } = useCart();
+  const { items, subtotal, count, increment, decrement, remove, updateItem, catalog } = useCart();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -120,6 +128,11 @@ export function CartDrawer() {
                               +
                             </button>
                           </div>
+                          <CartItemOptions
+                            item={item}
+                            catalog={catalog}
+                            onChange={(next) => updateItem(item.itemId, next)}
+                          />
                         </li>
                       ))}
                     </ul>
@@ -156,5 +169,142 @@ export function CartDrawer() {
           )
         : null}
     </>
+  );
+}
+
+function CartItemOptions({
+  item,
+  catalog,
+  onChange,
+}: {
+  item: CartItem;
+  catalog: ReturnType<typeof useCart>["catalog"];
+  onChange: (item: CartItem) => void;
+}) {
+  const fragrance = catalog.fragrances.find((entry) => entry.id === item.fragranceId);
+  const packaging = catalog.packaging.find((entry) => entry.id === item.packagingId);
+  if (!fragrance || !packaging) return null;
+
+  const bottlesForVolume = (volumeMl: number) =>
+    catalog.bottles.filter((bottle) => bottle.volumeMl === volumeMl);
+  const strengthOptions = STRENGTH_PRESETS.filter(
+    (preset) =>
+      preset.ml >= fragrance.minMl && preset.ml <= fragrance.maxMl && preset.ml <= item.volumeMl,
+  );
+
+  const update = (changes: Partial<CartItem>) => {
+    const next = { ...item, ...changes };
+    const bottle = catalog.bottles.find((entry) => entry.id === next.bottleId);
+    if (!bottle || !fragrance.inStock || !bottle.inStock || !packaging.inStock) return;
+    try {
+      const quote = calculate({
+        fragrance: {
+          id: fragrance.id,
+          name: fragrance.name,
+          pricePerMl: fragrance.effectivePricePerMl,
+          minMl: fragrance.minMl,
+          maxMl: fragrance.maxMl,
+        },
+        bottle: {
+          id: bottle.id,
+          name: bottle.name,
+          volumeMl: bottle.volumeMl,
+          price: bottle.sellPrice,
+          active: bottle.isActive,
+        },
+        packaging: {
+          id: packaging.id,
+          name: packaging.name,
+          price: packaging.sellPrice,
+          mandatory: packaging.isMandatory,
+          active: packaging.isActive,
+        },
+        alcohol: { pricePerMl: catalog.alcoholSellPerMl },
+        volumeMl: next.volumeMl,
+        fragranceMl: next.fragranceMl,
+      });
+      onChange({ ...next, bottleName: bottle.name, unitPrice: quote.total });
+    } catch (error) {
+      if (!(error instanceof PricingError)) throw error;
+    }
+  };
+
+  const selectVolume = (volumeMl: number) => {
+    const available = bottlesForVolume(volumeMl);
+    const bottle =
+      available.find((entry) => entry.name.toLowerCase().includes("standard")) ?? available[0];
+    if (!bottle || !bottle.inStock) return;
+    const fragranceMl = Math.min(item.fragranceMl, volumeMl, fragrance.maxMl);
+    if (fragranceMl < fragrance.minMl) return;
+    update({ volumeMl, fragranceMl, bottleId: bottle.id, bottleName: bottle.name });
+  };
+
+  return (
+    <fieldset className="mt-4 border-t border-ivory-200 pt-3">
+      <legend className="text-caption font-semibold uppercase tracking-[0.12em] text-muted-gray">
+        Atur parfummu
+      </legend>
+      <div className="mt-2 space-y-3">
+        <OptionGroup label="Ukuran">
+          {catalog.volumePresets.map((volumeMl) => {
+            const available = bottlesForVolume(volumeMl).some((bottle) => bottle.inStock);
+            return (
+              <ChoiceButton key={volumeMl} selected={item.volumeMl === volumeMl} disabled={!available} onClick={() => selectVolume(volumeMl)}>
+                {volumeMl} ml
+              </ChoiceButton>
+            );
+          })}
+        </OptionGroup>
+        <OptionGroup label="Kuat aroma">
+          {strengthOptions.map((preset) => (
+            <ChoiceButton key={preset.label} selected={item.fragranceMl === preset.ml} onClick={() => update({ fragranceMl: preset.ml })}>
+              {preset.label}
+            </ChoiceButton>
+          ))}
+        </OptionGroup>
+        <OptionGroup label="Botol">
+          {bottlesForVolume(item.volumeMl).map((bottle) => (
+            <ChoiceButton key={bottle.id} selected={item.bottleId === bottle.id} disabled={!bottle.inStock} onClick={() => update({ bottleId: bottle.id, bottleName: bottle.name })}>
+              {bottle.name}
+            </ChoiceButton>
+          ))}
+        </OptionGroup>
+      </div>
+    </fieldset>
+  );
+}
+
+function OptionGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-caption text-muted-gray">{label}</p>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">{children}</div>
+    </div>
+  );
+}
+
+function ChoiceButton({
+  selected,
+  disabled = false,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      disabled={disabled}
+      onClick={onClick}
+      className={`rounded-full border px-2.5 py-1 text-caption transition ${
+        selected ? "border-emerald bg-emerald text-black" : "border-ivory-200 text-black hover:border-emerald"
+      } disabled:cursor-not-allowed disabled:opacity-40`}
+    >
+      {children}
+    </button>
   );
 }
